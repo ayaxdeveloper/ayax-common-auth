@@ -45,12 +45,12 @@ export class AuthService implements IAuthService {
         }
     }
 
-    getUsers(subdivisionId?: number): AxiosPromise<OperationResult<SearchResponse<AuthUser[]>>> {
+    GetUsers(subdivisionId?: number): AxiosPromise<OperationResult<SearchResponse<AuthUser[]>>> {
         let request = subdivisionId ? {page: 1, perPage: 10000, subdivisionsIds: [subdivisionId]} : {page: 1, perpage: 10000};
         return this._readerOperation.post<SearchResponse<AuthUser[]>>('/user/search', request);
     }
 
-    getSubdivisions(isMain?: boolean): AxiosPromise<OperationResult<SearchResponse<AuthSubdivision[]>>> {
+    GetSubdivisions(isMain?: boolean): AxiosPromise<OperationResult<SearchResponse<AuthSubdivision[]>>> {
         let params = {};
         if(isMain) {
             params['isMain'] = isMain;
@@ -62,7 +62,7 @@ export class AuthService implements IAuthService {
 }
 
 export interface IAuthService {
-    getUsers(subdivisionId?: number) : AxiosPromise<OperationResult<SearchResponse<AuthUser[]>>>;
-    getSubdivisions(isMain?: boolean) : AxiosPromise<OperationResult<SearchResponse<AuthSubdivision[]>>>;
+    GetUsers(subdivisionId?: number) : AxiosPromise<OperationResult<SearchResponse<AuthUser[]>>>;
+    GetSubdivisions(isMain?: boolean) : AxiosPromise<OperationResult<SearchResponse<AuthSubdivision[]>>>;
     GetAuthenticatedUser(token: string): Promise<AuthUser>;
 }
