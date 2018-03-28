@@ -46,7 +46,7 @@ export class AuthService implements IAuthService {
     }
 
     GetUsers(subdivisionId?: number): AxiosPromise<OperationResult<SearchResponse<AuthUser[]>>> {
-        let request = subdivisionId ? {page: 1, perPage: 10000, subdivisionsIds: [subdivisionId]} : {page: 1, perpage: 10000};
+        let request = subdivisionId ? {page: 1, perPage: 10000, subdivisionsIds: [subdivisionId], showChildren: true} : {page: 1, perpage: 10000};
         return this._readerOperation.post<SearchResponse<AuthUser[]>>('/user/search', request);
     }
 
