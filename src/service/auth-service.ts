@@ -3,15 +3,18 @@ import { OperationService } from "ayax-common-services";
 import { AuthUser } from "../type/auth-user";
 import { AuthSubdivision } from "../type/auth-subdivision";
 import { AxiosPromise } from 'axios';
+import { CacheHelper } from 'ayax-common-cache';
 
 export class AuthService implements IAuthService {
     private _identityOperation: IOperationService;
     private _readerOperation: IOperationService;
     private _currentLocalStorageItem = 'currentUser';
+    private _cacheExpiresAfter: number;
     
-    constructor(identityOperation: IOperationService, readerOperation: IOperationService) {
+    constructor(identityOperation: IOperationService, readerOperation: IOperationService, cacheExpiresAfter?: number) {
         this._identityOperation = identityOperation;
         this._readerOperation = readerOperation;
+        this._cacheExpiresAfter = cacheExpiresAfter ? cacheExpiresAfter : 15;
     }
 
     async GetAuthenticatedUser(token: string): Promise<AuthUser> {
@@ -45,24 +48,26 @@ export class AuthService implements IAuthService {
         }
     }
 
-    GetUsers(subdivisionId?: number): AxiosPromise<OperationResult<SearchResponse<AuthUser[]>>> {
+    async GetUsers(subdivisionId?: number): Promise<AuthUser[]> {
         let request = subdivisionId ? {page: 1, perPage: 10000, subdivisionsIds: [subdivisionId], showChildren: true} : {page: 1, perpage: 10000};
-        return this._readerOperation.post<SearchResponse<AuthUser[]>>('/user/search', request);
+        let fetchResponse = this._readerOperation.post<SearchResponse<AuthUser[]>>('/user/search', request);
+        return (await CacheHelper.TryOperationSearchResponseFromCache<AuthUser>(fetchResponse, this._cacheExpiresAfter, "post", '/user/search', request));
     }
 
-    GetSubdivisions(isMain?: boolean): AxiosPromise<OperationResult<SearchResponse<AuthSubdivision[]>>> {
-        let params = {};
+    async GetSubdivisions(isMain?: boolean): Promise<AuthSubdivision[]> {
+        let request = {};
         if(isMain) {
-            params['isMain'] = isMain;
+            request['isMain'] = isMain;
         } else {
-            params['isMain'] = true;
+            request['isMain'] = true;
         }
-        return this._readerOperation.post<SearchResponse<AuthSubdivision[]>>('/subdivision/search', params);
+        let fetchResponse = this._readerOperation.post<SearchResponse<AuthSubdivision[]>>('/subdivision/search', request);
+        return (await CacheHelper.TryOperationSearchResponseFromCache<AuthSubdivision>(fetchResponse, this._cacheExpiresAfter, "post", '/subdivision/search', request));
     }
 }
 
 export interface IAuthService {
-    GetUsers(subdivisionId?: number) : AxiosPromise<OperationResult<SearchResponse<AuthUser[]>>>;
-    GetSubdivisions(isMain?: boolean) : AxiosPromise<OperationResult<SearchResponse<AuthSubdivision[]>>>;
+    GetUsers(subdivisionId?: number): Promise<AuthUser[]>;
+    GetSubdivisions(isMain?: boolean): Promise<AuthSubdivision[]>
     GetAuthenticatedUser(token: string): Promise<AuthUser>;
 }

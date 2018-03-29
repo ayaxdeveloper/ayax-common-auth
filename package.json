@@ -21,6 +21,7 @@
   "homepage": "https://github.com/maphskiy/ayax-common-auth#readme",
   "dependencies": {
     "axios": "^0.17.1",
+    "ayax-common-cache": "^1.0.0",
     "ayax-common-services": "^1.2.0",
     "ayax-common-types": "^1.2.0"
   },
