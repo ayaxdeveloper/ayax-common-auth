@@ -1,9 +1,11 @@
-import { IHttpService, IOperationService, OperationResult, SearchResponse } from "ayax-common-types";
+import { IHttpService, IOperationService, OperationResult, SearchResponse, guid } from "ayax-common-types";
 import { OperationService } from "ayax-common-services";
 import { AuthUser } from "../type/auth-user";
 import { AuthSubdivision } from "../type/auth-subdivision";
 import { AxiosPromise } from 'axios';
+import axios from 'axios';
 import { CacheHelper } from 'ayax-common-cache';
+import { AuthResponse } from "../type/auth-response";
 
 export class AuthService implements IAuthService {
     private _identityOperation: IOperationService;
@@ -15,6 +17,25 @@ export class AuthService implements IAuthService {
         this._identityOperation = identityOperation;
         this._readerOperation = readerOperation;
         this._cacheExpiresAfter = cacheExpiresAfter ? cacheExpiresAfter : 15;
+    }
+
+    async Login(login: string, password: string, modules: guid[]): Promise<boolean> {
+        if(!login || !password || !modules) {
+            throw new Error("Неверный параметры для авторизации");
+        }
+        const operation = (await axios.post<OperationResult<AuthResponse>>(`/authentication/Login`, {login: login, password: password, modules: modules})).data;
+        if(operation.status == 0) {
+            const result = operation.result;
+            localStorage.setItem("uid", JSON.stringify(result.uid));
+            localStorage.setItem("token", result.token);
+            localStorage.setItem("accessRules", JSON.stringify(result.accessRules));
+            return true;
+        } else {
+            localStorage.removeItem("uid");
+            localStorage.removeItem("token");
+            localStorage.removeItem("accessRules");   
+            return false;         
+        }
     }
 
     async GetAuthenticatedUser(token: string): Promise<AuthUser> {
@@ -67,6 +88,7 @@ export class AuthService implements IAuthService {
 }
 
 export interface IAuthService {
+    Login(login: string, password: string, modules: guid[]): Promise<boolean>
     GetUsers(subdivisionId?: number): Promise<AuthUser[]>;
     GetSubdivisions(isMain?: boolean): Promise<AuthSubdivision[]>
     GetAuthenticatedUser(token: string): Promise<AuthUser>;
