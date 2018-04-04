@@ -22,8 +22,8 @@ export class AuthService implements IAuthService {
         this._cacheExpiresAfter = cacheExpiresAfter ? cacheExpiresAfter : 15;
     }
 
-    async Login(login: string, password: string, modules: guid[]): Promise<boolean> {
-        if(!login || !password || !modules) {
+    async Login(login: string, password: string, modules?: string[]): Promise<boolean> {
+        if(!login || !password) {
             console.error("Неверные параметры для авторизации");
             throw new Error("Неверные параметры для авторизации");
         }
@@ -92,7 +92,7 @@ export class AuthService implements IAuthService {
 }
 
 export interface IAuthService {
-    Login(login: string, password: string, modules: guid[]): Promise<boolean>
+    Login(login: string, password: string, modules?: string[]): Promise<boolean>
     GetUsers(subdivisionId?: number): Promise<AuthUser[]>;
     GetSubdivisions(isMain?: boolean): Promise<AuthSubdivision[]>
     GetAuthenticatedUser(token: string): Promise<AuthUser>;
