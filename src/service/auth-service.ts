@@ -11,6 +11,9 @@ export class AuthService implements IAuthService {
     private _identityOperation: IOperationService;
     private _readerOperation: IOperationService;
     private _currentLocalStorageItem = 'currentUser';
+    private _uidStorageItem = 'uid';
+    private _tokenStorageItem = 'token';
+    private _accessRules = 'accessRules';
     private _cacheExpiresAfter: number;
     
     constructor(identityOperation: IOperationService, readerOperation: IOperationService, cacheExpiresAfter?: number) {
@@ -21,34 +24,35 @@ export class AuthService implements IAuthService {
 
     async Login(login: string, password: string, modules: guid[]): Promise<boolean> {
         if(!login || !password || !modules) {
-            throw new Error("Неверный параметры для авторизации");
+            console.error("Неверные параметры для авторизации");
+            throw new Error("Неверные параметры для авторизации");
         }
         const operation = (await axios.post<OperationResult<AuthResponse>>(`/authentication/Login`, {login: login, password: password, modules: modules})).data;
         if(operation.status == 0) {
             const result = operation.result;
-            localStorage.setItem("uid", JSON.stringify(result.uid));
-            localStorage.setItem("token", result.token);
-            localStorage.setItem("accessRules", JSON.stringify(result.accessRules));
+            localStorage.setItem(this._uidStorageItem, JSON.stringify(result.uid));
+            localStorage.setItem(this._tokenStorageItem, result.token);
+            localStorage.setItem(this._accessRules, JSON.stringify(result.accessRules));
             return true;
         } else {
-            localStorage.removeItem("uid");
-            localStorage.removeItem("token");
-            localStorage.removeItem("accessRules");   
+            localStorage.removeItem(this._uidStorageItem);
+            localStorage.removeItem(this._tokenStorageItem);
+            localStorage.removeItem(this._accessRules);   
             return false;         
         }
     }
 
     async GetAuthenticatedUser(token: string): Promise<AuthUser> {
-        let uid = localStorage.getItem("uid");
+        let uid = localStorage.getItem(this._uidStorageItem);
         if(!uid) {
             let operation = (await this._identityOperation.post<AuthUser>(`/authentication/GetAuthenticatedUser`,{token: token})).data;
             if(operation.status == 0) {
                 let user = operation.result;
                 localStorage.setItem(this._currentLocalStorageItem, JSON.stringify(user));
-                localStorage.setItem("uid", JSON.stringify(user.uid));
+                localStorage.setItem(this._uidStorageItem, JSON.stringify(user.uid));
                 return user;
             } else {
-                console.warn(operation.message);
+                console.error(operation.message);
                 throw Error(`Ошибка загрузки ${operation.message}`);
             }
         }
@@ -63,7 +67,7 @@ export class AuthService implements IAuthService {
                 localStorage.setItem(this._currentLocalStorageItem, JSON.stringify(user))
                 return user;
             } else {
-                console.warn(operation.message);
+                console.error(operation.message);
                 throw Error(`Ошибка загрузки ${operation.message}`);
             }
         }
