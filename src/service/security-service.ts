@@ -1,7 +1,9 @@
 export class SecurityService implements ISecurityService {
-    _accessRules: string[] = [];
-    constructor(accessRulesLocalStorageName: string) {
-        this._accessRules = this.GetAccessRules(accessRulesLocalStorageName);
+    private _accessRules: string[] = [];
+    private _accessRulesLocalStorageName: string;
+    constructor(accessRulesLocalStorageName?: string) {
+        this._accessRulesLocalStorageName = accessRulesLocalStorageName ? accessRulesLocalStorageName : "accessRules";
+        this._accessRules = this.GetAccessRules(this._accessRulesLocalStorageName);
     }
 
     private GetAccessRules(name: string): string[] {
