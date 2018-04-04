@@ -14,12 +14,12 @@ export class TokenService implements ITokenService {
         return localStorage.getItem(this._localStorageTokenName);
     }
 
-    public getToken() : string | null {
+    public getToken() : string {
         let cookie = this.getTokenFromCookie(this._localStorageTokenName, document.cookie);
         if(!cookie) {
             cookie = this.getTokenFromLocalStorage(this._localStorageTokenName);
         }
-        return cookie
+        return cookie ? cookie : "";
     }
 
     public setToken(token: string) {
@@ -32,7 +32,7 @@ export class TokenService implements ITokenService {
 }
 
 export interface ITokenService {
-    getToken() : string | null;
+    getToken() : string;
     setToken(token: string);
     clearToken();
 }
