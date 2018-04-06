@@ -42,7 +42,7 @@ export class AuthService implements IAuthService {
         }
     }
 
-    async GetAuthenticatedUser(token: string): Promise<AuthUser> {
+    async GetAuthenticatedUser(token: string | null): Promise<AuthUser> {
         if(!token || token == "") {
             console.error(`Неверный токен token=${token}`);
             throw Error(`Ошибка авторизации`);
@@ -99,5 +99,5 @@ export interface IAuthService {
     Login(login: string, password: string, modules?: string[]): Promise<boolean>
     GetUsers(subdivisionId?: number): Promise<AuthUser[]>;
     GetSubdivisions(isMain?: boolean): Promise<AuthSubdivision[]>
-    GetAuthenticatedUser(token: string): Promise<AuthUser>;
+    GetAuthenticatedUser(token: string | null): Promise<AuthUser>;
 }
