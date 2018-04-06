@@ -43,6 +43,10 @@ export class AuthService implements IAuthService {
     }
 
     async GetAuthenticatedUser(token: string): Promise<AuthUser> {
+        if(!token || token == "") {
+            console.error(`Неверный токен token=${token}`);
+            throw Error(`Ошибка авторизации`);
+        }
         let uid = localStorage.getItem(this._uidStorageItem);
         if(!uid) {
             let operation = (await this._identityOperation.post<AuthUser>(`/authentication/GetAuthenticatedUser`,{token: token})).data;
