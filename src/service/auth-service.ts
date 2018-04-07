@@ -15,30 +15,37 @@ export class AuthService implements IAuthService {
     private _tokenStorageItem = 'token';
     private _accessRules = 'accessRules';
     private _cacheExpiresAfter: number;
+    private _authenticateUrl: string;
     
-    constructor(identityOperation: IOperationService, readerOperation: IOperationService, cacheExpiresAfter?: number) {
+    constructor(identityOperation: IOperationService, readerOperation: IOperationService, cacheExpiresAfter?: number, authenticateUrl?: string) {
         this._identityOperation = identityOperation;
         this._readerOperation = readerOperation;
         this._cacheExpiresAfter = cacheExpiresAfter ? cacheExpiresAfter : 15;
+        this._authenticateUrl = authenticateUrl ? authenticateUrl : '/authentication/Login';
     }
 
     async Login(login: string, password: string, modules?: string[]): Promise<boolean> {
         if(!login || !password) {
             console.error("Неверные параметры для авторизации");
-            throw new Error("Неверные параметры для авторизации");
+            return false;
         }
-        const operation = (await axios.post<OperationResult<AuthResponse>>(`/authentication/Login`, {login: login, password: password, modules: modules})).data;
-        if(operation.status == 0) {
-            const result = operation.result;
-            localStorage.setItem(this._uidStorageItem, JSON.stringify(result.uid));
-            localStorage.setItem(this._tokenStorageItem, result.token);
-            localStorage.setItem(this._accessRules, JSON.stringify(result.accessRules));
-            return true;
-        } else {
-            localStorage.removeItem(this._uidStorageItem);
-            localStorage.removeItem(this._tokenStorageItem);
-            localStorage.removeItem(this._accessRules);   
-            return false;         
+        try {
+            const operation = (await axios.post<OperationResult<AuthResponse>>(this._authenticateUrl, {login: login, password: password, modules: modules})).data;
+            if(operation.status == 0) {
+                const result = operation.result;
+                localStorage.setItem(this._uidStorageItem, JSON.stringify(result.uid));
+                localStorage.setItem(this._tokenStorageItem, result.token);
+                localStorage.setItem(this._accessRules, JSON.stringify(result.accessRules));
+                return true;
+            } else {
+                localStorage.removeItem(this._uidStorageItem);
+                localStorage.removeItem(this._tokenStorageItem);
+                localStorage.removeItem(this._accessRules);   
+                return false;         
+            }
+        } catch (e) {
+            console.error(`Ошибка авторизации ${JSON.stringify(e)}`);
+            return false;
         }
     }
 
