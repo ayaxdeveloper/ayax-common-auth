@@ -33,7 +33,7 @@ export class AuthService implements IAuthService {
             const operation = (await axios.post<OperationResult<AuthResponse>>(this._authenticateUrl, {login: login, password: password, modules: modules})).data;
             if(operation.status == 0) {
                 const result = operation.result;
-                localStorage.setItem(this._uidStorageItem, JSON.stringify(result.uid));
+                localStorage.setItem(this._uidStorageItem, result.uid);
                 localStorage.setItem(this._tokenStorageItem, result.token);
                 localStorage.setItem(this._accessRules, JSON.stringify(result.accessRules));
                 return true;

@@ -1,7 +1,5 @@
-import { guid } from "ayax-common-types";
-
 export class AuthResponse {
-    uid: guid;
+    uid: string;
     token: string;
     accessRules: string[];
     constructor(init?: Partial<AuthResponse>) {
