@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/maphskiy/ayax-common-auth.git"
+    "url": "git+https://github.com/ayaxdeveloper/ayax-common-auth.git"
   },
   "author": "maphskiy",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/maphskiy/ayax-common-auth/issues"
+    "url": "https://github.com/ayaxdeveloper/ayax-common-auth/issues"
   },
-  "homepage": "https://github.com/maphskiy/ayax-common-auth#readme",
+  "homepage": "https://github.com/ayaxdeveloper/ayax-common-auth#readme",
   "dependencies": {
     "axios": "^0.17.1",
     "ayax-common-cache": "^1.0.0",
