@@ -1,8 +1,7 @@
-import { IHttpService, IOperationService, OperationResult, SearchResponse, guid } from "ayax-common-types";
-import { OperationService } from "ayax-common-services";
+import { OperationResult, SearchResponse, guid } from "ayax-common-types";
+import { OperationService, IOperationService } from "ayax-common-services";
 import { AuthUser } from "../type/auth-user";
 import { AuthSubdivision } from "../type/auth-subdivision";
-import { AxiosPromise } from 'axios';
 import axios from 'axios';
 import { CacheHelper } from 'ayax-common-cache';
 import { AuthResponse } from "../type/auth-response";
@@ -56,7 +55,7 @@ export class AuthService implements IAuthService {
         }
         let uid = localStorage.getItem(this._uidStorageItem);
         if(!uid) {
-            let operation = (await this._identityOperation.post<AuthUser>(`/authentication/GetAuthenticatedUser`,{token: token})).data;
+            let operation = (await this._identityOperation.post<AuthUser>(`/authentication/GetAuthenticatedUser`,{token: token}));
             if(operation.status == 0) {
                 let user = operation.result;
                 localStorage.setItem(this._currentLocalStorageItem, JSON.stringify(user));
@@ -72,7 +71,7 @@ export class AuthService implements IAuthService {
             return JSON.parse(currentUserLocalStorageItem);
         }
         else {
-            let operation = (await this._readerOperation.get<AuthUser>(`/user/getuserbyuid/${uid}`)).data;
+            let operation = (await this._readerOperation.get<AuthUser>(`/user/getuserbyuid/${uid}`));
             if(operation.status == 0) {
                 let user = operation.result;
                 localStorage.setItem(this._currentLocalStorageItem, JSON.stringify(user))
