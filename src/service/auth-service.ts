@@ -15,12 +15,14 @@ export class AuthService implements IAuthService {
     private _accessRules = 'accessRules';
     private _cacheExpiresAfter: number;
     private _authenticateUrl: string;
+    public currentUser: AuthUser;
     
-    constructor(identityOperation: IOperationService, readerOperation: IOperationService, cacheExpiresAfter?: number, authenticateUrl?: string) {
+    constructor(identityOperation: IOperationService, readerOperation: IOperationService, token: string, cacheExpiresAfter?: number, authenticateUrl?: string) {
         this._identityOperation = identityOperation;
         this._readerOperation = readerOperation;
         this._cacheExpiresAfter = cacheExpiresAfter ? cacheExpiresAfter : 15;
         this._authenticateUrl = authenticateUrl ? authenticateUrl : '/authentication/Login';
+        this.GetAuthenticatedUser(token).then(user => this.currentUser = user);
     }
 
     async Login(login: string, password: string, modules?: string[]): Promise<boolean> {
@@ -113,6 +115,7 @@ export class AuthService implements IAuthService {
 }
 
 export interface IAuthService {
+    currentUser: AuthUser;
     Login(login: string, password: string, modules?: string[]): Promise<boolean>
     GetUsers(subdivisionId?: number): Promise<AuthUser[]>;
     GetSubdivisions(isMain?: boolean): Promise<AuthSubdivision[]>
