@@ -9,20 +9,20 @@ import { AuthResponse } from "../type/auth-response";
 export class AuthService implements IAuthService {
     private _identityOperation: IOperationService;
     private _readerOperation: IOperationService;
-    private _currentLocalStorageItem = 'currentUser';
     private _uidStorageItem = 'uid';
     private _tokenStorageItem = 'token';
     private _accessRules = 'accessRules';
     private _cacheExpiresAfter: number;
     private _authenticateUrl: string;
-    public currentUser: AuthUser;
+    private _currentUser: AuthUser;
+    private _token: string;
     
     constructor(identityOperation: IOperationService, readerOperation: IOperationService, token: string, cacheExpiresAfter?: number, authenticateUrl?: string) {
         this._identityOperation = identityOperation;
         this._readerOperation = readerOperation;
         this._cacheExpiresAfter = cacheExpiresAfter ? cacheExpiresAfter : 15;
         this._authenticateUrl = authenticateUrl ? authenticateUrl : '/authentication/Login';
-        this.GetAuthenticatedUser(token).then(user => this.currentUser = user);
+        this._token = token;
     }
 
     async Login(login: string, password: string, modules?: string[]): Promise<boolean> {
@@ -50,17 +50,17 @@ export class AuthService implements IAuthService {
         }
     }
 
-    async GetAuthenticatedUser(token: string | null): Promise<AuthUser> {
-        if(!token || token == "") {
-            console.error(`Неверный токен token=${token}`);
+    async GetAuthenticatedUser(): Promise<AuthUser> {
+        if(!this._token || this._token == "") {
+            console.error(`Неверный токен token=${this._token}`);
             throw Error(`Ошибка авторизации`);
         }
         let uid = localStorage.getItem(this._uidStorageItem);
         if(!uid) {
-            let operation = (await this._identityOperation.post<AuthUser>(`/authentication/GetAuthenticatedUser`,{token: token}));
+            let operation = (await this._identityOperation.post<AuthUser>(`/authentication/GetAuthenticatedUser`,{token: this._token}));
             if(operation.status == 0) {
                 let user = operation.result;
-                localStorage.setItem(this._currentLocalStorageItem, JSON.stringify(user));
+                this._currentUser = user;
                 localStorage.setItem(this._uidStorageItem, JSON.stringify(user.uid));
                 return user;
             } else {
@@ -68,15 +68,14 @@ export class AuthService implements IAuthService {
                 throw Error(`Ошибка загрузки ${operation.message}`);
             }
         }
-        let currentUserLocalStorageItem = localStorage.getItem(this._currentLocalStorageItem);
-        if(currentUserLocalStorageItem) {
-            return JSON.parse(currentUserLocalStorageItem);
+        if(this._currentUser) {
+            return this._currentUser;
         }
         else {
             let operation = (await this._readerOperation.get<AuthUser>(`/user/getuserbyuid/${uid}`));
             if(operation.status == 0) {
                 let user = operation.result;
-                localStorage.setItem(this._currentLocalStorageItem, JSON.stringify(user))
+                this._currentUser = user;
                 return user;
             } else {
                 console.error(operation.message);
@@ -115,7 +114,6 @@ export class AuthService implements IAuthService {
 }
 
 export interface IAuthService {
-    currentUser: AuthUser;
     Login(login: string, password: string, modules?: string[]): Promise<boolean>
     GetUsers(subdivisionId?: number): Promise<AuthUser[]>;
     GetSubdivisions(isMain?: boolean): Promise<AuthSubdivision[]>
