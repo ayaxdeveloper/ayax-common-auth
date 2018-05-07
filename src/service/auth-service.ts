@@ -117,4 +117,5 @@ export interface IAuthService {
     GetUsers(subdivisionId?: number): Promise<AuthUser[]>;
     GetSubdivisions(isMain?: boolean): Promise<AuthSubdivision[]>
     GetAuthenticatedUser(token: string | null): Promise<AuthUser>;
+    GetUserByUid(uid: string): Promise<AuthUser>;
 }
