@@ -83,6 +83,17 @@ export class AuthService implements IAuthService {
         }
     }
 
+    async GetUserByUid(uid: string): Promise<AuthUser> {
+        let operation = (await this._readerOperation.get<AuthUser>(`/user/getuserbyuid/${uid}`));
+        if(operation.status == 0) {
+            let user = operation.result;
+            return user;
+        } else {
+            console.error(operation.message);
+            throw Error(`Ошибка загрузки ${operation.message}`);
+        }
+    }
+
     async GetUsers(subdivisionId?: number): Promise<AuthUser[]> {
         let request = subdivisionId ? {page: 1, perPage: 10000, subdivisionsIds: [subdivisionId], showChildren: true} : {page: 1, perpage: 10000};
         let fetchResponse = this._readerOperation.post<SearchResponse<AuthUser[]>>('/user/search', request);
