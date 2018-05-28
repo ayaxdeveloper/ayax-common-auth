@@ -50,18 +50,24 @@ export class AuthService implements IAuthService {
         }
     }
 
-    async GetAuthenticatedUser(): Promise<AuthUser> {
+    async GetAuthenticatedUser(modules: string[]): Promise<AuthUser> {
         if(!this._token || this._token == "") {
             console.error(`Неверный токен token=${this._token}`);
             throw Error(`Ошибка авторизации`);
         }
         let uid = localStorage.getItem(this._uidStorageItem);
         if(!uid) {
-            let operation = (await this._identityOperation.post<AuthUser>(`/authentication/GetAuthenticatedUser`,{token: this._token}));
+            let request = { token: this._token};
+            if(modules) {
+                request["modules"] = modules;
+            }
+            let operation = (await this._identityOperation.post<AuthUser>(`/authentication/GetAuthenticatedUser`, request));
             if(operation.status == 0) {
                 let user = operation.result;
                 this._currentUser = user;
                 localStorage.setItem(this._uidStorageItem, JSON.stringify(user.uid));
+                localStorage.setItem(this._tokenStorageItem, this._token);
+                localStorage.setItem(this._accessRules, JSON.stringify(user.accessRulesNames));
                 return user;
             } else {
                 console.error(operation.message);
@@ -117,6 +123,6 @@ export interface IAuthService {
     Login(login: string, password: string, modules?: string[]): Promise<boolean>
     GetUsers(subdivisionId?: number): Promise<AuthUser[]>;
     GetSubdivisions(isMain?: boolean): Promise<AuthSubdivision[]>
-    GetAuthenticatedUser(): Promise<AuthUser>;
+    GetAuthenticatedUser(modules: string[]): Promise<AuthUser>;
     GetUserByUid(uid: string): Promise<AuthUser>;
 }

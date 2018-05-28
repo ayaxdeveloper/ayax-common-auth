@@ -1,6 +1,6 @@
 {
   "name": "ayax-common-auth",
-  "version": "2.0.5",
+  "version": "2.1.0",
   "description": "Ayax Common Auth package for Typescript projects",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
