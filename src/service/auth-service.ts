@@ -66,8 +66,8 @@ export class AuthService implements IAuthService {
                 let user = operation.result;
                 this._currentUser = user;
                 localStorage.setItem(this._uidStorageItem, JSON.stringify(user.uid));
-                localStorage.setItem(this._tokenStorageItem, this._token);
                 localStorage.setItem(this._accessRules, JSON.stringify(user.accessRulesNames));
+                location.reload();
                 return user;
             } else {
                 console.error(operation.message);
