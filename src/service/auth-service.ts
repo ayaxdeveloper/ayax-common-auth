@@ -36,6 +36,7 @@ export class AuthService implements IAuthService {
                 const result = operation.result;
                 localStorage.setItem(this._uidStorageItem, result.uid);
                 localStorage.setItem(this._tokenStorageItem, result.token);
+                this._token = result.token;
                 localStorage.setItem(this._accessRules, JSON.stringify(result.accessRules));
                 return true;
             } else {
@@ -65,7 +66,8 @@ export class AuthService implements IAuthService {
             if(operation.status == 0) {
                 let user = operation.result;
                 this._currentUser = user;
-                localStorage.setItem(this._uidStorageItem, JSON.stringify(user.uid));
+                localStorage.setItem(this._uidStorageItem, JSON.stringify(user.uid).replace(/"/g, ""));
+                localStorage.setItem(this._tokenStorageItem, this._token);
                 localStorage.setItem(this._accessRules, JSON.stringify(user.accessRulesNames));
                 location.reload();
                 return user;
