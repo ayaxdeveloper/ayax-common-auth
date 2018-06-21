@@ -1,10 +1,10 @@
-import { OperationResult, SearchResponse, guid } from "ayax-common-types";
-import { OperationService, IOperationService } from "ayax-common-services";
+import { SearchResponse } from "ayax-common-types";
 import { AuthUser } from "../type/auth-user";
 import { AuthSubdivision } from "../type/auth-subdivision";
 import axios from 'axios';
 import { CacheHelper } from 'ayax-common-cache';
 import { AuthResponse } from "../type/auth-response";
+import { IOperationService, OperationResult } from "ayax-common-operation";
 
 export class AuthService implements IAuthService {
     private _identityOperation: IOperationService;
