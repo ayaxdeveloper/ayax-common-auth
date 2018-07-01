@@ -12,4 +12,4 @@ export const AyaxModules = {
     AuthReader: "81BB255F-CFDA-4677-8E22-936F8DD10692",
     AuthIdentity: "B11A8507-FA1F-4ECC-A04F-F7F662CF8B82",
     StaffSystem: "AAB892A3-4A59-4D64-88E8-A1513E3A97F3"
-}
+};

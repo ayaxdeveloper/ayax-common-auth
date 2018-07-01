@@ -8,7 +8,7 @@ export class AuthSubdivision implements IEntity {
     isMain: boolean;
     constructor(init?: Partial<AuthSubdivision>) {
         if(init) {
-            Object.assign(this, init)
+            Object.assign(this, init);
         }
     }
 }

@@ -16,7 +16,7 @@ export class AuthUser implements IEntity {
     accessRulesNames: string[];
     constructor(init?: Partial<AuthUser>) {
         if(init) {
-            Object.assign(this, init)
+            Object.assign(this, init);
         }
     }
 }

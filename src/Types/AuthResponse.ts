@@ -4,7 +4,7 @@ export class AuthResponse {
     accessRules: string[];
     constructor(init?: Partial<AuthResponse>) {
         if(init) {
-            Object.assign(this, init)
+            Object.assign(this, init);
         }
     }
     

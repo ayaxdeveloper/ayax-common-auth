@@ -4,10 +4,10 @@ export class TokenService implements ITokenService {
         this._localStorageTokenName = localStorageTokenName ? localStorageTokenName : "token";
     }
     private getTokenFromCookie(name: string, source: string): string | null {
-        var matches = source.match(new RegExp(
+        const matches = source.match(new RegExp(
             "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
           ));
-          let cookie = matches ? decodeURIComponent(matches[1]) : null;
+          const cookie = matches ? decodeURIComponent(matches[1]) : null;
         return cookie;
     }
     private getTokenFromLocalStorage(name: string): string | null {

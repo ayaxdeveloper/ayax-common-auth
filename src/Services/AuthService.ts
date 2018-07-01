@@ -1,10 +1,10 @@
 import { SearchResponse } from "ayax-common-types";
-import { AuthUser } from "../type/auth-user";
-import { AuthSubdivision } from "../type/auth-subdivision";
 import axios from 'axios';
 import { CacheHelper } from 'ayax-common-cache';
-import { AuthResponse } from "../type/auth-response";
 import { IOperationService, OperationResult } from "ayax-common-operation";
+import { AuthUser } from "../Types/AuthUser";
+import { AuthResponse } from "../Types/AuthResponse";
+import { AuthSubdivision } from "../Types/AuthSubdivision";
 
 export class AuthService implements IAuthService {
     private _identityOperation: IOperationService;
@@ -31,8 +31,8 @@ export class AuthService implements IAuthService {
             return false;
         }
         try {
-            const operation = (await axios.post<OperationResult<AuthResponse>>(this._authenticateUrl, {login: login, password: password, modules: modules})).data;
-            if(operation.status == 0) {
+            const operation = (await axios.post<OperationResult<AuthResponse>>(this._authenticateUrl, {login, password, modules})).data;
+            if(operation.status === 0) {
                 const result = operation.result;
                 localStorage.setItem(this._uidStorageItem, result.uid);
                 localStorage.setItem(this._tokenStorageItem, result.token);
@@ -52,19 +52,19 @@ export class AuthService implements IAuthService {
     }
 
     async GetAuthenticatedUser(modules: string[]): Promise<AuthUser> {
-        if(!this._token || this._token == "") {
+        if(!this._token || this._token === "") {
             console.error(`Неверный токен token=${this._token}`);
             throw Error(`Ошибка авторизации`);
         }
-        let uid = localStorage.getItem(this._uidStorageItem);
+        const uid = localStorage.getItem(this._uidStorageItem);
         if(!uid) {
-            let request = { token: this._token};
+            const request = { token: this._token};
             if(modules) {
                 request["modules"] = modules;
             }
-            let operation = (await this._identityOperation.post<AuthUser>(`/authentication/GetAuthenticatedUser`, request));
-            if(operation.status == 0) {
-                let user = operation.result;
+            const operation = (await this._identityOperation.post<AuthUser>(`/authentication/GetAuthenticatedUser`, request));
+            if(operation.status === 0) {
+                const user = operation.result;
                 this._currentUser = user;
                 localStorage.setItem(this._uidStorageItem, JSON.stringify(user.uid).replace(/"/g, ""));
                 localStorage.setItem(this._tokenStorageItem, this._token);
@@ -80,9 +80,9 @@ export class AuthService implements IAuthService {
             return this._currentUser;
         }
         else {
-            let operation = (await this._readerOperation.get<AuthUser>(`/user/getuserbyuid/${uid}`));
-            if(operation.status == 0) {
-                let user = operation.result;
+            const operation = (await this._readerOperation.get<AuthUser>(`/user/getuserbyuid/${uid}`));
+            if(operation.status === 0) {
+                const user = operation.result;
                 this._currentUser = user;
                 return user;
             } else {
@@ -93,9 +93,9 @@ export class AuthService implements IAuthService {
     }
 
     async GetUserByUid(uid: string): Promise<AuthUser> {
-        let operation = (await this._readerOperation.get<AuthUser>(`/user/getuserbyuid/${uid}`));
-        if(operation.status == 0) {
-            let user = operation.result;
+        const operation = (await this._readerOperation.get<AuthUser>(`/user/getuserbyuid/${uid}`));
+        if(operation.status === 0) {
+            const user = operation.result;
             return user;
         } else {
             console.error(operation.message);
@@ -104,27 +104,27 @@ export class AuthService implements IAuthService {
     }
 
     async GetUsers(subdivisionId?: number): Promise<AuthUser[]> {
-        let request = subdivisionId ? {page: 1, perPage: 10000, subdivisionsIds: [subdivisionId], showChildren: true} : {page: 1, perpage: 10000};
-        let fetchResponse = this._readerOperation.post<SearchResponse<AuthUser[]>>('/user/search', request);
+        const request = subdivisionId ? {page: 1, perPage: 10000, subdivisionsIds: [subdivisionId], showChildren: true} : {page: 1, perpage: 10000};
+        const fetchResponse = this._readerOperation.post<SearchResponse<AuthUser[]>>('/user/search', request);
         return (await CacheHelper.TryOperationSearchResponseFromCache<AuthUser>(fetchResponse, this._cacheExpiresAfter, "post", '/user/search', request));
     }
 
     async GetSubdivisions(isMain?: boolean): Promise<AuthSubdivision[]> {
-        let request = {};
+        const request = {};
         if(isMain) {
             request['isMain'] = isMain;
         } else {
             request['isMain'] = true;
         }
-        let fetchResponse = this._readerOperation.post<SearchResponse<AuthSubdivision[]>>('/subdivision/search', request);
+        const fetchResponse = this._readerOperation.post<SearchResponse<AuthSubdivision[]>>('/subdivision/search', request);
         return (await CacheHelper.TryOperationSearchResponseFromCache<AuthSubdivision>(fetchResponse, this._cacheExpiresAfter, "post", '/subdivision/search', request));
     }
 }
 
 export interface IAuthService {
-    Login(login: string, password: string, modules?: string[]): Promise<boolean>
+    Login(login: string, password: string, modules?: string[]): Promise<boolean>;
     GetUsers(subdivisionId?: number): Promise<AuthUser[]>;
-    GetSubdivisions(isMain?: boolean): Promise<AuthSubdivision[]>
+    GetSubdivisions(isMain?: boolean): Promise<AuthSubdivision[]>;
     GetAuthenticatedUser(modules: string[]): Promise<AuthUser>;
     GetUserByUid(uid: string): Promise<AuthUser>;
 }
