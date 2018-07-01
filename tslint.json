@@ -38,6 +38,7 @@
       "use-isnan": true,
       "variable-name": [
         true,
+        "check-format",
         "ban-keywords",
         "allow-leading-underscore",
         "allow-trailing-underscore"
