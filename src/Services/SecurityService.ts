@@ -8,7 +8,7 @@ export class SecurityService implements ISecurityService {
 
     private GetAccessRules(name: string): string[] {
         const rulesString = localStorage.getItem(name);
-        return rulesString ? <string[]>JSON.parse(rulesString.toLocaleLowerCase()) : [];
+        return rulesString ? <string[]> JSON.parse(rulesString.toLocaleLowerCase()) : [];
     }
 
     public UserHasAccessRule(accessRuleName: string): boolean {

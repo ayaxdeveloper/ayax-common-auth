@@ -3,7 +3,7 @@ export class AuthResponse {
     token: string;
     accessRules: string[];
     constructor(init?: Partial<AuthResponse>) {
-        if(init) {
+        if (init) {
             Object.assign(this, init);
         }
     }

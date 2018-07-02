@@ -1,17 +1,17 @@
-import { SearchResponse } from "ayax-common-types";
-import axios from 'axios';
-import { CacheHelper } from 'ayax-common-cache';
+import axios from "axios";
+import { CacheHelper } from "ayax-common-cache";
 import { IOperationService, OperationResult } from "ayax-common-operation";
-import { AuthUser } from "../Types/AuthUser";
+import { SearchResponse } from "ayax-common-types";
 import { AuthResponse } from "../Types/AuthResponse";
 import { AuthSubdivision } from "../Types/AuthSubdivision";
+import { AuthUser } from "../Types/AuthUser";
 
 export class AuthService implements IAuthService {
     private _identityOperation: IOperationService;
     private _readerOperation: IOperationService;
-    private _uidStorageItem = 'uid';
-    private _tokenStorageItem = 'token';
-    private _accessRules = 'accessRules';
+    private _uidStorageItem = "uid";
+    private _tokenStorageItem = "token";
+    private _accessRules = "accessRules";
     private _cacheExpiresAfter: number;
     private _authenticateUrl: string;
     private _currentUser: AuthUser;
@@ -21,18 +21,18 @@ export class AuthService implements IAuthService {
         this._identityOperation = identityOperation;
         this._readerOperation = readerOperation;
         this._cacheExpiresAfter = cacheExpiresAfter ? cacheExpiresAfter : 15;
-        this._authenticateUrl = authenticateUrl ? authenticateUrl : '/authentication/Login';
+        this._authenticateUrl = authenticateUrl ? authenticateUrl : "/authentication/Login";
         this._token = token;
     }
 
     async Login(login: string, password: string, modules?: string[]): Promise<boolean> {
-        if(!login || !password) {
+        if (!login || !password) {
             console.error("Неверные параметры для авторизации");
             return false;
         }
         try {
             const operation = (await axios.post<OperationResult<AuthResponse>>(this._authenticateUrl, {login, password, modules})).data;
-            if(operation.status === 0) {
+            if (operation.status === 0) {
                 const result = operation.result;
                 localStorage.setItem(this._uidStorageItem, result.uid);
                 localStorage.setItem(this._tokenStorageItem, result.token);
@@ -52,18 +52,18 @@ export class AuthService implements IAuthService {
     }
 
     async GetAuthenticatedUser(modules: string[]): Promise<AuthUser> {
-        if(!this._token || this._token === "") {
+        if (!this._token || this._token === "") {
             console.error(`Неверный токен token=${this._token}`);
             throw Error(`Ошибка авторизации`);
         }
         const uid = localStorage.getItem(this._uidStorageItem);
-        if(!uid) {
+        if (!uid) {
             const request = { token: this._token};
-            if(modules) {
+            if (modules) {
                 request["modules"] = modules;
             }
             const operation = (await this._identityOperation.post<AuthUser>(`/authentication/GetAuthenticatedUser`, request));
-            if(operation.status === 0) {
+            if (operation.status === 0) {
                 const user = operation.result;
                 this._currentUser = user;
                 localStorage.setItem(this._uidStorageItem, JSON.stringify(user.uid).replace(/"/g, ""));
@@ -76,12 +76,12 @@ export class AuthService implements IAuthService {
                 throw Error(`Ошибка загрузки ${operation.message}`);
             }
         }
-        if(this._currentUser) {
+        if (this._currentUser) {
             return this._currentUser;
         }
         else {
             const operation = (await this._readerOperation.get<AuthUser>(`/user/getuserbyuid/${uid}`));
-            if(operation.status === 0) {
+            if (operation.status === 0) {
                 const user = operation.result;
                 this._currentUser = user;
                 return user;
@@ -94,7 +94,7 @@ export class AuthService implements IAuthService {
 
     async GetUserByUid(uid: string): Promise<AuthUser> {
         const operation = (await this._readerOperation.get<AuthUser>(`/user/getuserbyuid/${uid}`));
-        if(operation.status === 0) {
+        if (operation.status === 0) {
             const user = operation.result;
             return user;
         } else {
@@ -105,19 +105,19 @@ export class AuthService implements IAuthService {
 
     async GetUsers(subdivisionId?: number): Promise<AuthUser[]> {
         const request = subdivisionId ? {page: 1, perPage: 10000, subdivisionsIds: [subdivisionId], showChildren: true} : {page: 1, perpage: 10000};
-        const fetchResponse = this._readerOperation.post<SearchResponse<AuthUser[]>>('/user/search', request);
-        return (await CacheHelper.TryOperationSearchResponseFromCache<AuthUser>(fetchResponse, this._cacheExpiresAfter, "post", '/user/search', request));
+        const fetchResponse = this._readerOperation.post<SearchResponse<AuthUser[]>>("/user/search", request);
+        return (await CacheHelper.TryOperationSearchResponseFromCache<AuthUser>(fetchResponse, this._cacheExpiresAfter, "post", "/user/search", request));
     }
 
     async GetSubdivisions(isMain?: boolean): Promise<AuthSubdivision[]> {
         const request = {};
-        if(isMain) {
-            request['isMain'] = isMain;
+        if (isMain) {
+            request["isMain"] = isMain;
         } else {
-            request['isMain'] = true;
+            request["isMain"] = true;
         }
-        const fetchResponse = this._readerOperation.post<SearchResponse<AuthSubdivision[]>>('/subdivision/search', request);
-        return (await CacheHelper.TryOperationSearchResponseFromCache<AuthSubdivision>(fetchResponse, this._cacheExpiresAfter, "post", '/subdivision/search', request));
+        const fetchResponse = this._readerOperation.post<SearchResponse<AuthSubdivision[]>>("/subdivision/search", request);
+        return (await CacheHelper.TryOperationSearchResponseFromCache<AuthSubdivision>(fetchResponse, this._cacheExpiresAfter, "post", "/subdivision/search", request));
     }
 }
 

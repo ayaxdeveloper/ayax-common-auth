@@ -5,7 +5,7 @@ export class TokenService implements ITokenService {
     }
     private getTokenFromCookie(name: string, source: string): string | null {
         const matches = source.match(new RegExp(
-            "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+            "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, "\\$1") + "=([^;]*)"
           ));
           const cookie = matches ? decodeURIComponent(matches[1]) : null;
         return cookie;
@@ -16,7 +16,7 @@ export class TokenService implements ITokenService {
 
     public getToken() : string | null {
         let cookie = this.getTokenFromCookie(this._localStorageTokenName, document.cookie);
-        if(!cookie) {
+        if (!cookie) {
             cookie = this.getTokenFromLocalStorage(this._localStorageTokenName);
         }
         return cookie ? cookie : null;

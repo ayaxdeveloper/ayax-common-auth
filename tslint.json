@@ -14,6 +14,7 @@
       "class-name": true,
       "curly": [true, "ignore-same-line"],
       "forin": true,
+      "import-spacing": true,
       "jsdoc-format": true,
       "label-position": true,
       "new-parens": true,
@@ -21,7 +22,6 @@
       "no-conditional-assignment": true,
       "no-construct": true,
       "no-debugger": true,
-      "no-default-export": true,
       "no-duplicate-variable": true,
       "no-inferrable-types": true,
       "no-namespace": [true, "allow-declarations"],
@@ -36,12 +36,16 @@
       "switch-default": true,
       "triple-equals": [true, "allow-null-check"],
       "use-isnan": true,
+      "ordered-imports": [true, "case-insensitive"],
+      "interface-name": [true, "always-prefix"],
+      "quotemark": [true, "double"],
       "variable-name": [
         true,
         "check-format",
         "ban-keywords",
         "allow-leading-underscore",
         "allow-trailing-underscore"
-      ]
+      ],
+      "whitespace": [true, "check-branch", "check-operator", "check-typecast", "check-decl", "check-type", "check-preblock"]
     }
   }

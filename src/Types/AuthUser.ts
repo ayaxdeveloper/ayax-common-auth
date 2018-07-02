@@ -15,7 +15,7 @@ export class AuthUser implements IEntity {
     birthDate: Date;
     accessRulesNames: string[];
     constructor(init?: Partial<AuthUser>) {
-        if(init) {
+        if (init) {
             Object.assign(this, init);
         }
     }
