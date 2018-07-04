@@ -1,6 +1,6 @@
 {
   "name": "ayax-common-auth",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "description": "Ayax Common Auth package for Typescript projects",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,9 +21,9 @@
   "homepage": "https://github.com/ayaxdeveloper/ayax-common-auth#readme",
   "dependencies": {
     "axios": "^0.17.1",
-    "ayax-common-cache": "^3.0.0",
-    "ayax-common-operation": "^1.0.7",
-    "ayax-common-types": "^3.0.1"
+    "ayax-common-cache": "^3.0.6",
+    "ayax-common-operation": "^1.0.12",
+    "ayax-common-types": "^3.0.4"
   },
   "devDependencies": {}
 }

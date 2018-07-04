@@ -105,7 +105,7 @@ export class AuthService implements IAuthService {
 
     async GetUsers(subdivisionId?: number): Promise<AuthUser[]> {
         const request = subdivisionId ? {page: 1, perPage: 10000, subdivisionsIds: [subdivisionId], showChildren: true} : {page: 1, perpage: 10000};
-        const fetchResponse = this._readerOperation.post<SearchResponse<AuthUser[]>>("/user/search", request);
+        const fetchResponse = () => this._readerOperation.post<SearchResponse<AuthUser[]>>("/user/search", request);
         return (await CacheHelper.TryOperationSearchResponseFromCache<AuthUser>(fetchResponse, this._cacheExpiresAfter, "post", "/user/search", request));
     }
 
@@ -116,7 +116,7 @@ export class AuthService implements IAuthService {
         } else {
             request["isMain"] = true;
         }
-        const fetchResponse = this._readerOperation.post<SearchResponse<AuthSubdivision[]>>("/subdivision/search", request);
+        const fetchResponse = () => this._readerOperation.post<SearchResponse<AuthSubdivision[]>>("/subdivision/search", request);
         return (await CacheHelper.TryOperationSearchResponseFromCache<AuthSubdivision>(fetchResponse, this._cacheExpiresAfter, "post", "/subdivision/search", request));
     }
 }
