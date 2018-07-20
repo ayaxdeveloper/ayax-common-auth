@@ -1,9 +1,9 @@
-import { guid } from "ayax-common-types";
+import { Guid } from "ayax-common-types";
 import { IEntity } from "ayax-common-types";
 
 export class AuthUser implements IEntity {
     id: number;
-    uid: guid;
+    uid: Guid;
     profilePictureUrl: string;
     name: string;
     patronymic: string;
