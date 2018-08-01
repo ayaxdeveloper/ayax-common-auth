@@ -1,3 +1,4 @@
+import { CONFIGURATION } from "../Configuration/Configuration";
 import { IAccessProxy } from "./../Types/AccessProxy/IAccessProxy";
 import { ISecurityService } from "./ISecurityService";
 
@@ -20,6 +21,17 @@ export class SecurityService implements ISecurityService {
 
     public UserHasAnyAccessRule(accessRuleNames: string[]): boolean {
         return accessRuleNames.some(rule => this._accessRules.indexOf(rule.toLocaleLowerCase()) !== -1);
+    }
+
+    public MapAccessProxy(accessProxyClass: IAccessProxy) {
+        if (accessProxyClass[CONFIGURATION.AccessProxyVisibleRulesName]) {
+            for (const key in accessProxyClass[CONFIGURATION.AccessProxyVisibleRulesName]) {
+                if (accessProxyClass[CONFIGURATION.AccessProxyVisibleRulesName][key]) {
+                    const rules = accessProxyClass[CONFIGURATION.AccessProxyVisibleRulesName][key];
+                    accessProxyClass.visible[key] = Array.isArray(rules) ? this.UserHasAnyAccessRule(rules) : this.UserHasAccessRule(rules);
+                }
+            }
+        }
     }
 }
 
