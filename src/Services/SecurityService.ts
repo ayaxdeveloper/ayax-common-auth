@@ -23,7 +23,7 @@ export class SecurityService implements ISecurityService {
         return accessRuleNames.some(rule => this._accessRules.indexOf(rule.toLocaleLowerCase()) !== -1);
     }
 
-    public MapAccessProxy(accessProxyClass: IAccessProxy) {
+    public MapAccessProxy(accessProxyClass: IAccessProxy) : IAccessProxy {
         if (accessProxyClass[CONFIGURATION.AccessProxyVisibleRulesName]) {
             for (const key in accessProxyClass[CONFIGURATION.AccessProxyVisibleRulesName]) {
                 if (accessProxyClass[CONFIGURATION.AccessProxyVisibleRulesName][key]) {
@@ -32,6 +32,7 @@ export class SecurityService implements ISecurityService {
                 }
             }
         }
+        return accessProxyClass;
     }
 }
 
