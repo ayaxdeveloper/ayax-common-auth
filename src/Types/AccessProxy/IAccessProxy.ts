@@ -1,7 +1,7 @@
 import { ISecurityService } from "../../services/ISecurityService";
 import { IAccessProxyCollection } from "./IAccessProxyCollection";
 export interface IAccessProxy {
-    writeable: IAccessProxyCollection;
+    writable: IAccessProxyCollection;
     visible: IAccessProxyCollection;
     MapAccessProxy(securityService: ISecurityService);
 } 
