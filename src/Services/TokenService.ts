@@ -1,3 +1,5 @@
+import { ITokenService } from "./ITokenService";
+
 export class TokenService implements ITokenService {
     private _localStorageTokenName: string;
     constructor(localStorageTokenName?: string) {
@@ -29,10 +31,4 @@ export class TokenService implements ITokenService {
     public clearToken() {
         localStorage.removeItem(this._localStorageTokenName);
     }
-}
-
-export interface ITokenService {
-    getToken() : string | null;
-    setToken(token: string);
-    clearToken();
 }

@@ -1,3 +1,5 @@
+import { IAuthService } from "./IAuthService";
+
 import axios from "axios";
 import { CacheHelper } from "ayax-common-cache";
 import { IOperationService, OperationResult } from "ayax-common-operation";
@@ -119,12 +121,4 @@ export class AuthService implements IAuthService {
         const fetchResponse = () => this._readerOperation.post<SearchResponse<AuthSubdivision[]>>("/subdivision/search", request);
         return (await CacheHelper.TryOperationSearchResponseFromCache<AuthSubdivision>(fetchResponse, this._cacheExpiresAfter, "post", "/subdivision/search", request));
     }
-}
-
-export interface IAuthService {
-    Login(login: string, password: string, modules?: string[]): Promise<boolean>;
-    GetUsers(subdivisionId?: number): Promise<AuthUser[]>;
-    GetSubdivisions(isMain?: boolean): Promise<AuthSubdivision[]>;
-    GetAuthenticatedUser(modules: string[]): Promise<AuthUser>;
-    GetUserByUid(uid: string): Promise<AuthUser>;
 }

@@ -22,7 +22,7 @@
   "dependencies": {
     "axios": "^0.17.1",
     "ayax-common-cache": "^3.0.10",
-    "ayax-common-operation": "^1.0.12",
+    "ayax-common-operation": "^1.0.20",
     "ayax-common-types": "^3.0.7"
   },
   "devDependencies": {}
