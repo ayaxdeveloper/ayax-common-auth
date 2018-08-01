@@ -1,4 +1,3 @@
 export const CONFIGURATION = {
-    AccessProxyVisibleRulesName: "_visibleRules",
-    VisibleBehaviorIfNoAccessRules: true
+    AccessProxyVisibleRulesName: "_visibleRules"
 };
