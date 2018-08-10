@@ -28,11 +28,7 @@ export class SecurityService implements ISecurityService {
         return this._accessRules.indexOf(accessRuleName.toLocaleLowerCase()) !== -1;
     }
 
-    public UserHasAnyAccessRule(...accessRuleNames: string[]): boolean {
-        return this.UserHasAnyAccessRuleArray(accessRuleNames);
-    }
-
-    private UserHasAnyAccessRuleArray(accessRuleNames: string[]): boolean {
+    public UserHasAnyAccessRule(accessRuleNames: string[]): boolean {
         return accessRuleNames.some(rule => this._accessRules.indexOf(rule.toLocaleLowerCase()) !== -1);
     }
     public MapAccessProxy(accessProxyClass: IAccessProxy) : IAccessProxy {
@@ -40,7 +36,7 @@ export class SecurityService implements ISecurityService {
             for (const key in accessProxyClass[CONFIGURATION.AccessProxyVisibleRulesName]) {
                 if (accessProxyClass[CONFIGURATION.AccessProxyVisibleRulesName][key]) {
                     const rules = accessProxyClass[CONFIGURATION.AccessProxyVisibleRulesName][key];
-                    accessProxyClass.visible[key] = Array.isArray(rules) ? this.UserHasAnyAccessRuleArray(rules) : this.UserHasAccessRule(rules);
+                    accessProxyClass.visible[key] = Array.isArray(rules) ? this.UserHasAnyAccessRule(rules) : this.UserHasAccessRule(rules);
                 }
             }
         }
