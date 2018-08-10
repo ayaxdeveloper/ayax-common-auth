@@ -29,15 +29,18 @@ export class SecurityService implements ISecurityService {
     }
 
     public UserHasAnyAccessRule(...accessRuleNames: string[]): boolean {
-        return accessRuleNames.some(rule => this._accessRules.indexOf(rule.toLocaleLowerCase()) !== -1);
+        return this.UserHasAnyAccessRuleArray(accessRuleNames);
     }
 
+    private UserHasAnyAccessRuleArray(accessRuleNames: string[]): boolean {
+        return accessRuleNames.some(rule => this._accessRules.indexOf(rule.toLocaleLowerCase()) !== -1);
+    }
     public MapAccessProxy(accessProxyClass: IAccessProxy) : IAccessProxy {
         if (accessProxyClass[CONFIGURATION.AccessProxyVisibleRulesName]) {
             for (const key in accessProxyClass[CONFIGURATION.AccessProxyVisibleRulesName]) {
                 if (accessProxyClass[CONFIGURATION.AccessProxyVisibleRulesName][key]) {
                     const rules = accessProxyClass[CONFIGURATION.AccessProxyVisibleRulesName][key];
-                    accessProxyClass.visible[key] = Array.isArray(rules) ? this.UserHasAnyAccessRule(rules) : this.UserHasAccessRule(rules);
+                    accessProxyClass.visible[key] = Array.isArray(rules) ? this.UserHasAnyAccessRuleArray(rules) : this.UserHasAccessRule(rules);
                 }
             }
         }
