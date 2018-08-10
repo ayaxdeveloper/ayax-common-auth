@@ -28,7 +28,7 @@ export class SecurityService implements ISecurityService {
         return this._accessRules.indexOf(accessRuleName.toLocaleLowerCase()) !== -1;
     }
 
-    public UserHasAnyAccessRule(accessRuleNames: string[]): boolean {
+    public UserHasAnyAccessRule(...accessRuleNames: string[]): boolean {
         return accessRuleNames.some(rule => this._accessRules.indexOf(rule.toLocaleLowerCase()) !== -1);
     }
 
