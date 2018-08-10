@@ -3,6 +3,15 @@ import { IAccessProxy } from "./../Types/AccessProxy/IAccessProxy";
 import { ISecurityService } from "./ISecurityService";
 
 export class SecurityService implements ISecurityService {
+    UserHasAnyAccessRuleStartsWith(accessRuleStarts: string[]): boolean {
+        accessRuleStarts.forEach(start => {
+            const query = new RegExp(`^${start}`, "i");
+            this._accessRules.forEach(accessRule => {
+                return query.test(accessRule);
+            });
+        });
+        return false;
+    }
     private _accessRules: string[] = [];
     private _accessRulesLocalStorageName: string;
     constructor(accessRulesLocalStorageName?: string) {
