@@ -1,13 +1,14 @@
 {
   "name": "ayax-common-auth",
-  "version": "3.0.19",
+  "version": "3.0.20",
   "description": "Ayax Common Auth package for Typescript projects",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
-    "prepublish": "npm run build"
+    "test": "mocha -r ts-node/register test/**.ts",
+    "build": "npm test && tsc",
+    "prepublish": "npm run build",
+    "watch": "npm test && tsc --watch"
   },
   "repository": {
     "type": "git",
@@ -25,5 +26,12 @@
     "ayax-common-operation": "^1.0.20",
     "ayax-common-types": "^3.0.7"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/chai": "^4.1.4",
+    "@types/mocha": "^5.2.5",
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "ts-node": "^7.0.1",
+    "typings": "^2.1.1"
+  }
 }

@@ -11,7 +11,7 @@ export class SecurityService implements ISecurityService {
         this._accessRules = this.GetAccessRules(this._accessRulesLocalStorageName);
     }
 
-    private GetAccessRules(name: string): string[] {
+    GetAccessRules(name: string): string[] {
         const rulesString = localStorage.getItem(name);
         return rulesString ? <string[]> JSON.parse(rulesString.toLocaleLowerCase()) : [];
     }
@@ -21,20 +21,12 @@ export class SecurityService implements ISecurityService {
     }
 
     public UserHasAccessRuleStartsWith(accessRuleStarts: string): boolean {
-        const query = new RegExp(`^${accessRuleStarts}`, "i");
-        this._accessRules.forEach(accessRule => {
-            return query.test(accessRule);
-        });
-        return false;
+        const query = new RegExp(`\^${accessRuleStarts}`, "i");
+        return this._accessRules.some(accessRule => query.test(accessRule));
     }
 
     public UserHasAnyAccessRuleStartsWith(accessRuleStarts: string[]): boolean {
-        accessRuleStarts.forEach(start => {
-            if (this.UserHasAccessRuleStartsWith(start)) {
-                return true;
-            }
-        });
-        return false;
+        return accessRuleStarts.some(start => this.UserHasAccessRuleStartsWith(start));
     }
 
     public UserHasAnyAccessRule(accessRuleNames: string[]): boolean {
