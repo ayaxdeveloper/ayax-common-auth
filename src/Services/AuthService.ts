@@ -14,10 +14,13 @@ export class AuthService implements IAuthService {
     private _uidStorageItem = "uid";
     private _tokenStorageItem = "token";
     private _accessRules = "accessRules";
+    private _modulesStorageItem = "modules";
+    private _currentUserStorageItem = "currentUser";
     private _cacheExpiresAfter: number;
     private _authenticateUrl: string;
     private _currentUser: AuthUser;
     private _token: string;
+    private _modules: string[];
     
     constructor(identityOperation: IOperationService, readerOperation: IOperationService, token: string, cacheExpiresAfter?: number, authenticateUrl?: string) {
         this._identityOperation = identityOperation;
@@ -25,6 +28,28 @@ export class AuthService implements IAuthService {
         this._cacheExpiresAfter = cacheExpiresAfter ? cacheExpiresAfter : 15;
         this._authenticateUrl = authenticateUrl ? authenticateUrl : "/authentication/Login";
         this._token = token;
+        const modules = localStorage.getItem(this._modulesStorageItem);
+        if (modules) {
+            this._modules = JSON.parse(modules);
+        }
+    }
+
+    async GetCurrentUser(): Promise<AuthUser> {
+        if (this._currentUser) {
+            return this._currentUser;
+        }
+
+        const currentUserFromLocalStorage = localStorage.getItem(this._currentUserStorageItem);
+        if (currentUserFromLocalStorage) {
+            return <AuthUser> JSON.parse(currentUserFromLocalStorage);
+        }
+
+        const currentUserUid = localStorage.getItem(this._uidStorageItem);
+        if (currentUserUid) {
+            return this.GetUserByUid(JSON.parse(currentUserUid));
+        }
+
+        throw new Error("Ошибка получения текущего пользователя");
     }
 
     async Login(login: string, password: string, modules?: string[]): Promise<boolean> {
@@ -32,19 +57,24 @@ export class AuthService implements IAuthService {
             console.error("Неверные параметры для авторизации");
             return false;
         }
+        if (!modules) {
+            modules = this._modules;
+        }
         try {
             const operation = (await axios.post<OperationResult<AuthResponse>>(this._authenticateUrl, {login, password, modules})).data;
             if (operation.status === 0) {
                 const result = operation.result;
+                this._token = result.token;
                 localStorage.setItem(this._uidStorageItem, result.uid);
                 localStorage.setItem(this._tokenStorageItem, result.token);
-                this._token = result.token;
                 localStorage.setItem(this._accessRules, JSON.stringify(result.accessRules));
+                localStorage.setItem(this._modulesStorageItem, JSON.stringify(modules));
                 return true;
             } else {
                 localStorage.removeItem(this._uidStorageItem);
                 localStorage.removeItem(this._tokenStorageItem);
                 localStorage.removeItem(this._accessRules);   
+                localStorage.removeItem(this._modulesStorageItem);
                 return false;         
             }
         } catch (e) {
@@ -58,6 +88,11 @@ export class AuthService implements IAuthService {
             console.error(`Неверный токен token=${this._token}`);
             throw Error(`Ошибка авторизации`);
         }
+
+        if (!modules) {
+            modules = this._modules;
+        }
+
         const uid = localStorage.getItem(this._uidStorageItem);
         if (!uid) {
             const request = { token: this._token};
@@ -70,6 +105,7 @@ export class AuthService implements IAuthService {
                 this._currentUser = user;
                 localStorage.setItem(this._uidStorageItem, JSON.stringify(user.uid).replace(/"/g, ""));
                 localStorage.setItem(this._tokenStorageItem, this._token);
+                localStorage.setItem(this._modulesStorageItem, JSON.stringify(modules));
                 localStorage.setItem(this._accessRules, JSON.stringify(user.accessRulesNames));
                 location.reload();
                 return user;
