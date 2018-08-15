@@ -13,7 +13,8 @@ export class AuthUser implements IEntity {
     firstName: string;
     email: string;
     birthDate: Date;
-    accessRulesNames: string[];
+    accessRulesNames: string[] = [];
+    subdivisionIds: number[] = [];
     constructor(init?: Partial<AuthUser>) {
         if (init) {
             Object.assign(this, init);
