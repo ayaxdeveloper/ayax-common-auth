@@ -1,4 +1,5 @@
 import { IAccessProxy } from "../Types/AccessProxy/IAccessProxy";
+import { AuthUser } from "../Types/AuthUser";
 
 export interface ISecurityService {
     UserHasAccessRule(accessRuleName: string): boolean;
@@ -6,4 +7,5 @@ export interface ISecurityService {
     UserHasAccessRuleStartsWith(accessRuleStarts: string): boolean;
     UserHasAnyAccessRuleStartsWith(accessRuleStarts: string[]): boolean;
     MapAccessProxy(accessProxyClass: IAccessProxy) : IAccessProxy;
+    CurrentUser: AuthUser;
 }

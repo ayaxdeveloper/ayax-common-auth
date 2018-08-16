@@ -1,4 +1,5 @@
 import { CONFIGURATION } from "../Configuration/Configuration";
+import { AuthUser } from "../Types/AuthUser";
 import { IAccessProxy } from "./../Types/AccessProxy/IAccessProxy";
 import { ISecurityService } from "./ISecurityService";
 
@@ -6,9 +7,20 @@ export class SecurityService implements ISecurityService {
     
     private _accessRules: string[] = [];
     private _accessRulesLocalStorageName: string;
+    private _currentUserStorageItem = "currentUser";
+    private _currentUser: AuthUser;
+
     constructor(accessRulesLocalStorageName?: string) {
         this._accessRulesLocalStorageName = accessRulesLocalStorageName ? accessRulesLocalStorageName : "accessRules";
         this._accessRules = this.GetAccessRules(this._accessRulesLocalStorageName);
+    }
+
+    get CurrentUser(): AuthUser {
+        if (!this._currentUser) {
+            const currentUserFromStorage = localStorage.getItem(this._currentUserStorageItem);
+            this._currentUser = <AuthUser> JSON.parse(currentUserFromStorage);
+        } 
+        return this._currentUser;
     }
 
     GetAccessRules(name: string): string[] {
