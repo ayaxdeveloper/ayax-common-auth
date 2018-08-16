@@ -34,29 +34,65 @@ export class AuthService implements IAuthService {
         }
     }
 
-    async GetCurrentUser(): Promise<AuthUser> {
+    get modules(): string[] {
+        if (this._modules) {
+            return this._modules;
+        } else {
+            const fromStorage = localStorage.getItem(this._modulesStorageItem);
+            this._modules = <string[]> JSON.parse(fromStorage);
+            return this._modules;
+        }
+    }
+
+    set modules(value: string[]) {
+        const fromStorage = localStorage.getItem(this._modulesStorageItem);
+        if (!fromStorage) {
+            localStorage.setItem(this._modulesStorageItem, JSON.stringify(value));
+        }
+        this._modules = value;
+    }
+
+    get currentUser(): AuthUser {
         if (this._currentUser) {
             return this._currentUser;
+        } else {
+            const currentUserFromStorage = localStorage.getItem(this._currentUserStorageItem);
+            this._currentUser = <AuthUser> JSON.parse(currentUserFromStorage);
+            return this._currentUser;
+        } 
+    }
+
+    set currentUser(value: AuthUser) {
+        const currentUserFromStorage = localStorage.getItem(this._currentUserStorageItem);
+        if (!currentUserFromStorage) {
+            localStorage.setItem(this._currentUserStorageItem, JSON.stringify(value));
+        }
+        this._currentUser = value;
+    }
+
+    async GetCurrentUser(): Promise<AuthUser> {
+        if (this.currentUser) {
+            return this.currentUser;
         }
         try {
             const currentUserFromLocalStorage = localStorage.getItem(this._currentUserStorageItem);
             if (currentUserFromLocalStorage) {
                 const value = <AuthUser> JSON.parse(currentUserFromLocalStorage);
-                this.SetCurrentUser(value);
+                this.currentUser = value;
                 return value;
             }
     
             const currentUserUid = localStorage.getItem(this._uidStorageItem);
             if (currentUserUid) {
                 const value = await this.GetUserByUid(JSON.parse(currentUserUid));
-                this.SetCurrentUser(value);
+                this.currentUser = value;
                 return value;
             }
     
             const modules = localStorage.getItem(this._modulesStorageItem);
             if (modules) {
                 const value = await this.GetAuthenticatedUser(<string[]> JSON.parse(modules));
-                this.SetCurrentUser(value);
+                this.currentUser = value;
                 return value;
             }
 
@@ -65,10 +101,6 @@ export class AuthService implements IAuthService {
         }
 
         throw new Error("Ошибка получения текущего пользователя");
-    }
-
-    private SetCurrentUser(user: AuthUser) {
-        localStorage.setItem(this._currentUserStorageItem, JSON.stringify(user));
     }
 
     async Login(login: string, password: string, modules?: string[]): Promise<boolean> {
@@ -122,8 +154,7 @@ export class AuthService implements IAuthService {
             const operation = (await this._identityOperation.post<AuthUser>(`/authentication/GetAuthenticatedUser`, request));
             if (operation.status === 0) {
                 const user = operation.result;
-                this._currentUser = user;
-                this.SetCurrentUser(this._currentUser);
+                this.currentUser = user;
                 localStorage.setItem(this._uidStorageItem, JSON.stringify(user.uid).replace(/"/g, ""));
                 localStorage.setItem(this._tokenStorageItem, this._token);
                 localStorage.setItem(this._modulesStorageItem, JSON.stringify(modules));
@@ -142,7 +173,7 @@ export class AuthService implements IAuthService {
             const operation = (await this._readerOperation.get<AuthUser>(`/user/getuserbyuid/${uid}`));
             if (operation.status === 0) {
                 const user = operation.result;
-                this._currentUser = user;
+                this.currentUser = user;
                 return user;
             } else {
                 console.error(operation.message);
