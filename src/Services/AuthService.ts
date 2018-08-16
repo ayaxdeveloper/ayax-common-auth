@@ -53,13 +53,11 @@ export class AuthService implements IAuthService {
     }
 
     get currentUser(): AuthUser {
-        if (this._currentUser) {
-            return this._currentUser;
-        } else {
+        if (!this._currentUser) {
             const currentUserFromStorage = localStorage.getItem(this._currentUserStorageItem);
             this._currentUser = <AuthUser> JSON.parse(currentUserFromStorage);
-            return this._currentUser;
         } 
+        return this._currentUser;
     }
 
     set currentUser(value: AuthUser) {
@@ -77,14 +75,15 @@ export class AuthService implements IAuthService {
         try {
             const currentUserFromLocalStorage = localStorage.getItem(this._currentUserStorageItem);
             if (currentUserFromLocalStorage) {
-                const value = <AuthUser> JSON.parse(currentUserFromLocalStorage);
+
+                const value = JSON.parse(currentUserFromLocalStorage);
                 this.currentUser = value;
-                return value;
+                return value; 
             }
     
             const currentUserUid = localStorage.getItem(this._uidStorageItem);
             if (currentUserUid) {
-                const value = await this.GetUserByUid(JSON.parse(currentUserUid));
+                const value = await this.GetUserByUid(currentUserUid);
                 this.currentUser = value;
                 return value;
             }
