@@ -38,18 +38,37 @@ export class AuthService implements IAuthService {
         if (this._currentUser) {
             return this._currentUser;
         }
+        try {
+            const currentUserFromLocalStorage = localStorage.getItem(this._currentUserStorageItem);
+            if (currentUserFromLocalStorage) {
+                const value = <AuthUser> JSON.parse(currentUserFromLocalStorage);
+                this.SetCurrentUser(value);
+                return value;
+            }
+    
+            const currentUserUid = localStorage.getItem(this._uidStorageItem);
+            if (currentUserUid) {
+                const value = await this.GetUserByUid(JSON.parse(currentUserUid));
+                this.SetCurrentUser(value);
+                return value;
+            }
+    
+            const modules = localStorage.getItem(this._modulesStorageItem);
+            if (modules) {
+                const value = await this.GetAuthenticatedUser(<string[]> JSON.parse(modules));
+                this.SetCurrentUser(value);
+                return value;
+            }
 
-        const currentUserFromLocalStorage = localStorage.getItem(this._currentUserStorageItem);
-        if (currentUserFromLocalStorage) {
-            return <AuthUser> JSON.parse(currentUserFromLocalStorage);
-        }
-
-        const currentUserUid = localStorage.getItem(this._uidStorageItem);
-        if (currentUserUid) {
-            return this.GetUserByUid(JSON.parse(currentUserUid));
+        } catch (e) {
+            throw new Error(e);
         }
 
         throw new Error("Ошибка получения текущего пользователя");
+    }
+
+    private SetCurrentUser(user: AuthUser) {
+        localStorage.setItem(this._currentUserStorageItem, JSON.stringify(user));
     }
 
     async Login(login: string, password: string, modules?: string[]): Promise<boolean> {
@@ -69,6 +88,7 @@ export class AuthService implements IAuthService {
                 localStorage.setItem(this._tokenStorageItem, result.token);
                 localStorage.setItem(this._accessRules, JSON.stringify(result.accessRules));
                 localStorage.setItem(this._modulesStorageItem, JSON.stringify(modules));
+                await this.GetCurrentUser();
                 return true;
             } else {
                 localStorage.removeItem(this._uidStorageItem);
@@ -103,6 +123,7 @@ export class AuthService implements IAuthService {
             if (operation.status === 0) {
                 const user = operation.result;
                 this._currentUser = user;
+                this.SetCurrentUser(this._currentUser);
                 localStorage.setItem(this._uidStorageItem, JSON.stringify(user.uid).replace(/"/g, ""));
                 localStorage.setItem(this._tokenStorageItem, this._token);
                 localStorage.setItem(this._modulesStorageItem, JSON.stringify(modules));
