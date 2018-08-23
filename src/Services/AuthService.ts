@@ -11,7 +11,6 @@ import { AuthUser } from "../Types/AuthUser";
 export class AuthService implements IAuthService {
     private _identityOperation: IOperationService;
     private _readerOperation: IOperationService;
-    private _uidStorageItem = "uid";
     private _tokenStorageItem = "token";
     private _accessRules = "accessRules";
     private _modulesStorageItem = "modules";
@@ -20,7 +19,6 @@ export class AuthService implements IAuthService {
     private _authenticateUrl: string;
     private _currentUser: AuthUser;
     private _token: string;
-    private _modules: string[];
     
     constructor(identityOperation: IOperationService, readerOperation: IOperationService, token: string, cacheExpiresAfter?: number, authenticateUrl?: string) {
         this._identityOperation = identityOperation;
@@ -28,28 +26,19 @@ export class AuthService implements IAuthService {
         this._cacheExpiresAfter = cacheExpiresAfter ? cacheExpiresAfter : 15;
         this._authenticateUrl = authenticateUrl ? authenticateUrl : "/authentication/Login";
         this._token = token;
-        const modules = localStorage.getItem(this._modulesStorageItem);
-        if (modules) {
-            this._modules = JSON.parse(modules);
-        }
     }
 
     get modules(): string[] {
-        if (this._modules) {
-            return this._modules;
+        const fromStorage = localStorage.getItem(this._modulesStorageItem);
+        if (fromStorage) {
+            return <string[]> JSON.parse(fromStorage);
         } else {
-            const fromStorage = localStorage.getItem(this._modulesStorageItem);
-            this._modules = <string[]> JSON.parse(fromStorage);
-            return this._modules;
+            return null;
         }
     }
 
     set modules(value: string[]) {
-        const fromStorage = localStorage.getItem(this._modulesStorageItem);
-        if (!fromStorage) {
-            localStorage.setItem(this._modulesStorageItem, JSON.stringify(value));
-        }
-        this._modules = value;
+        localStorage.setItem(this._modulesStorageItem, JSON.stringify(value));
     }
 
     get currentUser(): AuthUser {
@@ -81,25 +70,14 @@ export class AuthService implements IAuthService {
                 return value; 
             }
     
-            const currentUserUid = localStorage.getItem(this._uidStorageItem);
-            if (currentUserUid) {
-                const value = await this.GetUserByUid(currentUserUid);
-                this.currentUser = value;
-                return value;
-            }
-    
-            const modules = localStorage.getItem(this._modulesStorageItem);
-            if (modules) {
-                const value = await this.GetAuthenticatedUser(<string[]> JSON.parse(modules));
-                this.currentUser = value;
-                return value;
-            }
+            const currentUser = await this.GetAuthenticatedUser();
+            this.currentUser = currentUser;
+            return currentUser;
 
         } catch (e) {
+            localStorage.clear();
             throw new Error(e);
         }
-
-        throw new Error("Ошибка получения текущего пользователя");
     }
 
     async Login(login: string, password: string, modules?: string[]): Promise<boolean> {
@@ -107,77 +85,54 @@ export class AuthService implements IAuthService {
             console.error("Неверные параметры для авторизации");
             return false;
         }
-        if (!modules) {
-            modules = this._modules;
+        if (modules) {
+            this.modules = modules;
         }
+
+        console.log(modules);
+
+        const request = {
+            login, 
+            password
+        };
+
+        if (modules) {
+            request["modules"] = modules;
+        }
+
         try {
-            const operation = (await axios.post<OperationResult<AuthResponse>>(this._authenticateUrl, {login, password, modules})).data;
-            if (operation.status === 0) {
-                const result = operation.result;
-                this._token = result.token;
-                localStorage.setItem(this._uidStorageItem, result.uid);
-                localStorage.setItem(this._tokenStorageItem, result.token);
-                localStorage.setItem(this._accessRules, JSON.stringify(result.accessRules));
-                localStorage.setItem(this._modulesStorageItem, JSON.stringify(modules));
-                await this.GetCurrentUser();
-                return true;
-            } else {
-                localStorage.removeItem(this._uidStorageItem);
-                localStorage.removeItem(this._tokenStorageItem);
-                localStorage.removeItem(this._accessRules);   
-                localStorage.removeItem(this._modulesStorageItem);
-                return false;         
-            }
+            const operation = await this._identityOperation.post<AuthResponse>(this._authenticateUrl, request).then(x => x.ensureSuccess());
+            const result = operation;
+            this._token = result.token;
+            localStorage.setItem(this._tokenStorageItem, result.token);
+            localStorage.setItem(this._accessRules, JSON.stringify(result.accessRules));
+            localStorage.setItem(this._modulesStorageItem, JSON.stringify(modules));
+            await this.GetCurrentUser();
+            return true;
         } catch (e) {
+            localStorage.clear();
             console.error(`Ошибка авторизации ${JSON.stringify(e)}`);
             return false;
         }
     }
 
-    async GetAuthenticatedUser(modules: string[]): Promise<AuthUser> {
+    async GetAuthenticatedUser(modules?: string[]): Promise<AuthUser> {
         if (!this._token || this._token === "") {
             console.error(`Неверный токен token=${this._token}`);
             throw Error(`Ошибка авторизации`);
         }
-
-        if (!modules) {
-            modules = this._modules;
+    
+        const request = { token: this._token};
+        if (modules) {
+            request["modules"] = modules;
         }
-
-        const uid = localStorage.getItem(this._uidStorageItem);
-        if (!uid) {
-            const request = { token: this._token};
-            if (modules) {
-                request["modules"] = modules;
-            }
-            const operation = (await this._identityOperation.post<AuthUser>(`/authentication/GetAuthenticatedUser`, request));
-            if (operation.status === 0) {
-                const user = operation.result;
-                this.currentUser = user;
-                localStorage.setItem(this._uidStorageItem, JSON.stringify(user.uid).replace(/"/g, ""));
-                localStorage.setItem(this._tokenStorageItem, this._token);
-                localStorage.setItem(this._modulesStorageItem, JSON.stringify(modules));
-                localStorage.setItem(this._accessRules, JSON.stringify(user.accessRulesNames));
-                location.reload();
-                return user;
-            } else {
-                console.error(operation.message);
-                throw Error(`Ошибка загрузки ${operation.message}`);
-            }
-        }
-        if (this._currentUser) {
-            return this._currentUser;
-        }
-        else {
-            const operation = (await this._readerOperation.get<AuthUser>(`/user/getuserbyuid/${uid}`));
-            if (operation.status === 0) {
-                const user = operation.result;
-                this.currentUser = user;
-                return user;
-            } else {
-                console.error(operation.message);
-                throw Error(`Ошибка загрузки ${operation.message}`);
-            }
+        try {
+            const user = await this._identityOperation.post<AuthUser>(`/authentication/GetAuthenticatedUser`, request).then(x => x.ensureSuccess());
+            this.currentUser = user;
+            return user;
+        } catch (e) {
+            console.error(e);
+            throw Error(e);
         }
     }
 
