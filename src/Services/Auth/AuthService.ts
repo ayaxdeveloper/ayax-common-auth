@@ -33,6 +33,19 @@ export class AuthService implements IAuthService {
         this._cookieTokenName = options.cookieTokenName ? options.cookieTokenName : "token";
     }
 
+    get accessRules(): string[] {
+        const fromStorage = localStorage.getItem(this._accessRules);
+        if (fromStorage) {
+            return <string[]> JSON.parse(fromStorage);
+        } else {
+            return null;
+        }
+    }
+
+    set accessRules(value: string[]) {
+        localStorage.setItem(this._accessRules, JSON.stringify(value));
+    }
+
     get modules(): string[] {
         const fromStorage = localStorage.getItem(this._modulesStorageItem);
         if (fromStorage) {
@@ -132,10 +145,15 @@ export class AuthService implements IAuthService {
         const request = { token: this._token};
         if (modules) {
             request["modules"] = modules;
+            this.modules = modules;
         }
         try {
             const user = await this._identityOperation.post<AuthUser>(`/authentication/GetAuthenticatedUser`, request).then(x => x.ensureSuccess());
             this.currentUser = user;
+            if (user.accessRulesNames.length > 0 && !this.accessRules) {
+                this.accessRules = user.accessRulesNames;
+                location.reload();
+            }
             return user;
         } catch (e) {
             console.error(e);
