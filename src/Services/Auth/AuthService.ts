@@ -28,7 +28,7 @@ export class AuthService implements IAuthService {
         this._cacheExpiresAfter = options.cacheExpiresAfter ? options.cacheExpiresAfter : 15;
         this._authenticateUrl = options.authenticateUrl ? options.authenticateUrl : "/authentication/Login";
         this._token = options.token;
-        this._cookieDomain = options.cookieDomain ? options.cookieDomain : ".ayax.ru";
+        this._cookieDomain = location.href.startsWith("http://localhost") ? "localhost" : options.cookieDomain ? options.cookieDomain : ".ayax.ru";
         this._tokenExpiresInHours = options.tokenExpiresInHours ? options.tokenExpiresInHours : 72;
         this._cookieTokenName = options.cookieTokenName ? options.cookieTokenName : "token";
     }
