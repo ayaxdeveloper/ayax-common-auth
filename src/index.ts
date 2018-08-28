@@ -1,5 +1,5 @@
-export * from "./Services/AuthService";
-export * from "./Services/IAuthService";
+export * from "./Services/Auth/AuthService";
+export * from "./Services/Auth/IAuthService";
 export * from "./Services/SecurityService";
 export * from "./Services/ISecurityService";
 export * from "./Services/TokenService";

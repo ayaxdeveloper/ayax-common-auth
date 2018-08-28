@@ -1,12 +1,11 @@
-import { IAuthService } from "./IAuthService";
-
-import axios from "axios";
 import { CacheHelper } from "ayax-common-cache";
-import { IOperationService, OperationResult } from "ayax-common-operation";
+import { IOperationService } from "ayax-common-operation";
 import { SearchResponse } from "ayax-common-types";
-import { AuthResponse } from "../Types/AuthResponse";
-import { AuthSubdivision } from "../Types/AuthSubdivision";
-import { AuthUser } from "../Types/AuthUser";
+import { AuthResponse } from "../../Types/AuthResponse";
+import { AuthSubdivision } from "../../Types/AuthSubdivision";
+import { AuthUser } from "../../Types/AuthUser";
+import { IAuthService } from "./IAuthService";
+import { IAuthServiceOptions } from "./IAuthServiceOptions";
 
 export class AuthService implements IAuthService {
     private _identityOperation: IOperationService;
@@ -19,13 +18,19 @@ export class AuthService implements IAuthService {
     private _authenticateUrl: string;
     private _currentUser: AuthUser;
     private _token: string;
+    private _cookieDomain: string;
+    private _tokenExpiresInHours: number;
+    private _cookieTokenName: string;
     
-    constructor(identityOperation: IOperationService, readerOperation: IOperationService, token: string, cacheExpiresAfter?: number, authenticateUrl?: string) {
-        this._identityOperation = identityOperation;
-        this._readerOperation = readerOperation;
-        this._cacheExpiresAfter = cacheExpiresAfter ? cacheExpiresAfter : 15;
-        this._authenticateUrl = authenticateUrl ? authenticateUrl : "/authentication/Login";
-        this._token = token;
+    constructor(options: IAuthServiceOptions) {
+        this._identityOperation = options.identityOperation;
+        this._readerOperation = options.readerOperation;
+        this._cacheExpiresAfter = options.cacheExpiresAfter ? options.cacheExpiresAfter : 15;
+        this._authenticateUrl = options.authenticateUrl ? options.authenticateUrl : "/authentication/Login";
+        this._token = options.token;
+        this._cookieDomain = options.cookieDomain ? options.cookieDomain : ".ayax.ru";
+        this._tokenExpiresInHours = options.tokenExpiresInHours ? options.tokenExpiresInHours : 72;
+        this._cookieTokenName = options.cookieTokenName ? options.cookieTokenName : "token";
     }
 
     get modules(): string[] {
@@ -107,10 +112,12 @@ export class AuthService implements IAuthService {
             localStorage.setItem(this._tokenStorageItem, result.token);
             localStorage.setItem(this._accessRules, JSON.stringify(result.accessRules));
             localStorage.setItem(this._modulesStorageItem, JSON.stringify(modules));
+            this.SetTokenCookie(result.token);
             await this.GetCurrentUser();
             return true;
         } catch (e) {
             localStorage.clear();
+            this.DeleteTokenCookie();
             console.error(`Ошибка авторизации ${JSON.stringify(e)}`);
             return false;
         }
@@ -162,5 +169,17 @@ export class AuthService implements IAuthService {
         }
         const fetchResponse = () => this._readerOperation.post<SearchResponse<AuthSubdivision[]>>("/subdivision/search", request);
         return (await CacheHelper.TryOperationSearchResponseFromCache<AuthSubdivision>(fetchResponse, this._cacheExpiresAfter, "post", "/subdivision/search", request));
+    }
+
+    private SetTokenCookie(token: string) {
+        let expires = "";
+        const date = new Date();
+        date.setTime(date.getTime() + (this._tokenExpiresInHours * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+        document.cookie = `${this._cookieTokenName}=${token}${expires};path=/;domain=${this._cookieDomain};`;
+    }
+
+    private DeleteTokenCookie() {
+        document.cookie = `${this._cookieTokenName}=; Max-Age=-99999999;`;
     }
 }
