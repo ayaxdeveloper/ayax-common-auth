@@ -136,7 +136,7 @@ export class AuthService implements IAuthService {
         }
     }
 
-    async GetAuthenticatedUser(modules?: string[]): Promise<AuthUser> {
+    private async GetAuthenticatedUser(modules?: string[]): Promise<AuthUser> {
         if (!this._token || this._token === "") {
             console.error(`Неверный токен token=${this._token}`);
             throw Error(`Ошибка авторизации`);
