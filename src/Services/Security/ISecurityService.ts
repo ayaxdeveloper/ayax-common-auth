@@ -1,5 +1,5 @@
-import { IAccessProxy } from "../Types/AccessProxy/IAccessProxy";
-import { AuthUser } from "../Types/AuthUser";
+import { IAccessProxy } from "../../Types/AccessProxy/IAccessProxy";
+import { AuthUser } from "../../Types/AuthUser";
 
 export interface ISecurityService {
     UserHasAccessRule(accessRuleName: string): boolean;

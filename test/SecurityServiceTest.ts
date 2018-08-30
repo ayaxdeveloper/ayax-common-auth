@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import "mocha";
-import { SecurityService } from "../src/Services/SecurityService";
+import { SecurityService } from "../src/Services/Security/SecurityService";
 
 const ACCESSRULES = {
     BaseRead: "TEST_READ",

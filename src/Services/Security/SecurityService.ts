@@ -1,26 +1,29 @@
-import { CONFIGURATION } from "../Configuration/Configuration";
-import { AuthUser } from "../Types/AuthUser";
-import { IAccessProxy } from "./../Types/AccessProxy/IAccessProxy";
+import { CONFIGURATION } from "../../Configuration/Configuration";
+import { IAccessProxy } from "../../Types/AccessProxy/IAccessProxy";
+import { AuthUser } from "../../Types/AuthUser";
 import { ISecurityService } from "./ISecurityService";
+import { ISecurityServiceOptions } from "./ISecurityServiceOptions";
 
 export class SecurityService implements ISecurityService {
     
     private _accessRules: string[] = [];
     private _accessRulesLocalStorageName: string;
-    private _currentUserStorageItem = "currentUser";
-    private _currentUser: AuthUser;
+    private _currentUserStorageItem: string;
 
-    constructor(accessRulesLocalStorageName?: string) {
-        this._accessRulesLocalStorageName = accessRulesLocalStorageName ? accessRulesLocalStorageName : "accessRules";
+    constructor(options?: ISecurityServiceOptions) {
+        this._accessRulesLocalStorageName = options && options.accessRulesLocalStorageName ? options.accessRulesLocalStorageName : "accessRules";
         this._accessRules = this.GetAccessRules(this._accessRulesLocalStorageName);
+        this._currentUserStorageItem = options && options.currentUserStorageItem ? options.currentUserStorageItem : "currentUser";
     }
 
-    get CurrentUser(): AuthUser {
-        if (!this._currentUser) {
-            const currentUserFromStorage = localStorage.getItem(this._currentUserStorageItem);
-            this._currentUser = <AuthUser> JSON.parse(currentUserFromStorage);
-        } 
-        return this._currentUser;
+    get CurrentUser() : AuthUser {
+        const currentUserFromLocalStorage = localStorage.getItem(this._currentUserStorageItem);
+        if (currentUserFromLocalStorage) {
+
+            const value = JSON.parse(currentUserFromLocalStorage);
+            return value; 
+        }
+        return null;
     }
 
     GetAccessRules(name: string): string[] {
