@@ -1,3 +1,4 @@
 export const CONFIGURATION = {
-    AccessProxyVisibleRulesName: "_visibleRules"
+    AccessProxyVisibleRulesName: "_visibleRules",
+    AccessProxyWritableRulesName: "_writableRules"
 };
