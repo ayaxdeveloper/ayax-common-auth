@@ -9,6 +9,7 @@ export * from "./Types/AuthUser";
 export * from "./Types/AuthResponse";
 export * from "./Ayaxmodules/Ayaxmodules";
 export * from "./Decorators/VisiableAccess/VisibleAccessDecorator";
+export * from "./Decorators/WritableAccess/WritableAccessDecorator";
 export * from "./Types/AccessProxy/AccessProxyBase";
 export * from "./Types/AccessProxy/IAccessProxy";
 export * from "./Types/AccessProxy/IAccessProxyCollection";
