@@ -56,6 +56,16 @@ export class SecurityService implements ISecurityService {
                 }
             }
         }
+        if (accessProxyClass[CONFIGURATION.AccessProxyWritableRulesName]) {
+            for (const key in accessProxyClass[CONFIGURATION.AccessProxyWritableRulesName]) {
+                if (accessProxyClass[CONFIGURATION.AccessProxyWritableRulesName][key]) {
+                    const rules = accessProxyClass[CONFIGURATION.AccessProxyWritableRulesName][key];
+                    if (!accessProxyClass.writable[key]) {
+                        accessProxyClass.writable[key] = Array.isArray(rules) ? this.UserHasAnyAccessRule(rules) : this.UserHasAccessRule(rules);
+                    }
+                }
+            }
+        }
         return accessProxyClass;
     }
 }
