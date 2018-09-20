@@ -7,7 +7,7 @@ export * from "./Services/ITokenService";
 export * from "./Types/AuthSubdivision";
 export * from "./Types/AuthUser";
 export * from "./Types/AuthResponse";
-export * from "./Ayaxmodules/Ayaxmodules";
+export * from "./AyaxModules/AyaxModules";
 export * from "./Decorators/VisiableAccess/VisibleAccessDecorator";
 export * from "./Decorators/WritableAccess/WritableAccessDecorator";
 export * from "./Types/AccessProxy/AccessProxyBase";
