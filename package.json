@@ -1,9 +1,9 @@
 {
   "name": "ayax-common-auth",
-  "version": "3.0.39",
+  "version": "3.0.40",
   "description": "Ayax Common Auth package for Typescript projects",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/Index.js",
+  "types": "dist/Index.d.ts",
   "scripts": {
     "test": "mocha -r ts-node/register test/**.ts",
     "build": "npm test && tsc",
