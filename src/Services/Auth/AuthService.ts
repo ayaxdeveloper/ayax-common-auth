@@ -141,17 +141,17 @@ export class AuthService implements IAuthService {
         }
     
         const request = { token: this._token};
-        if (modules) {
+        if (modules && modules.length > 0) {
             request["modules"] = modules;
             this.modules = modules;
         } else if (this.modules) {
             request["modules"] = this.modules;
         }
-        
+
         try {
             const user = await this._identityOperation.post<AuthUser>(`/authentication/GetAuthenticatedUser`, request).then(x => x.ensureSuccess());
             this.currentUser = user;
-            if (!this.accessRules) {
+            if (!this.accessRules && user.accessRulesNames.length > 0) {
                 this.accessRules = user.accessRulesNames;
                 location.reload();
             }
