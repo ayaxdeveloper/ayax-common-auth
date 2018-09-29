@@ -107,8 +107,6 @@ export class AuthService implements IAuthService {
             this.modules = modules;
         }
 
-        console.log(modules);
-
         const request = {
             login, 
             password
@@ -146,11 +144,14 @@ export class AuthService implements IAuthService {
         if (modules) {
             request["modules"] = modules;
             this.modules = modules;
+        } else if (this.modules) {
+            request["modules"] = this.modules;
         }
+        
         try {
             const user = await this._identityOperation.post<AuthUser>(`/authentication/GetAuthenticatedUser`, request).then(x => x.ensureSuccess());
             this.currentUser = user;
-            if (user.accessRulesNames.length > 0 && !this.accessRules) {
+            if (!this.accessRules) {
                 this.accessRules = user.accessRulesNames;
                 location.reload();
             }
