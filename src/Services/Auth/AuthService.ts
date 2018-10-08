@@ -1,6 +1,5 @@
 import { CacheHelper } from "ayax-common-cache";
 import { IOperationService } from "ayax-common-operation";
-import { SearchResponse } from "ayax-common-types";
 import { AuthResponse } from "../../Types/AuthResponse";
 import { AuthSubdivision } from "../../Types/AuthSubdivision";
 import { AuthUser } from "../../Types/AuthUser";
@@ -174,12 +173,16 @@ export class AuthService implements IAuthService {
     }
 
     async GetUsers(subdivisionId?: number): Promise<AuthUser[]> {
-        const request = subdivisionId ? {page: 1, perPage: 10000, subdivisionsIds: [subdivisionId], showChildren: true} : {page: 1, perpage: 10000};
+        return subdivisionId ? this.GetUsersForSubdivisionList([subdivisionId]) : this.GetUsersForSubdivisionList();
+    }
+
+    async GetUsersForSubdivisionList(subdivisionsIds?: number[]) : Promise<AuthUser[]> {
+        const request = subdivisionsIds ? {page: 1, perPage: 10000, subdivisionsIds: subdivisionsIds, showChildren: true} : {page: 1, perpage: 10000};
         const fetchResponse = () => this._readerOperation.search<AuthUser[]>("/user/search", request).then(x => x.ensureSuccess()).then(x => x.data);
         return CacheHelper.TryFromCache<AuthUser>(fetchResponse, this._cacheExpiresAfter, "post", "/user/search", request);
     }
 
-    async GetSubdivisions(isMain?: boolean): Promise<AuthSubdivision[]> {
+    async GetSubdivisions(isMain?: boolean): Promise<AuthSubdivision[]>  {
         const request = {};
         if (isMain) {
             request["isMain"] = isMain;
@@ -188,6 +191,10 @@ export class AuthService implements IAuthService {
         }
         const fetchResponse = () => this._readerOperation.search<AuthSubdivision[]>("/subdivision/search", request).then(x => x.ensureSuccess()).then(x => x.data);
         return CacheHelper.TryFromCache<AuthSubdivision>(fetchResponse, this._cacheExpiresAfter, "post", "/subdivision/search", request);
+    }
+
+    async GetUsersForMyDivision(): Promise<AuthUser[]> {
+        return this.GetUsersForSubdivisionList(this.currentUser.subdivisionIds);
     }
 
     private SetTokenCookie(token: string) {

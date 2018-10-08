@@ -6,4 +6,6 @@ export interface IAuthService {
     GetSubdivisions(isMain?: boolean): Promise<AuthSubdivision[]>;
     GetUserByUid(uid: string): Promise<AuthUser>;
     GetCurrentUser(): Promise<AuthUser>;
+    GetUsersForMyDivision(): Promise<AuthUser[]>;
+    GetUsersForSubdivisionList(subdivisionIds: number[]): Promise<AuthUser[]>;
 }

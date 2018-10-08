@@ -1,6 +1,6 @@
 {
   "name": "ayax-common-auth",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Ayax Common Auth package for Typescript projects",
   "main": "dist/Index.js",
   "types": "dist/Index.d.ts",
@@ -23,7 +23,7 @@
   "dependencies": {
     "axios": "^0.17.1",
     "ayax-common-cache": "^3.0.10",
-    "ayax-common-operation": "^1.0.20",
+    "ayax-common-operation": "^1.0.21",
     "ayax-common-types": "^3.0.28"
   },
   "devDependencies": {
