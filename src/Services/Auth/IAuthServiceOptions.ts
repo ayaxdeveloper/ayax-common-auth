@@ -12,4 +12,5 @@ export interface IAuthServiceOptions {
     tokenExpiresInHours?: number;
     /** Имя куки для хранения токена */
     cookieTokenName?: string;
+    modules?: string[];
 }
