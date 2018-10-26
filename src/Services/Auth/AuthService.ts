@@ -123,7 +123,7 @@ export class AuthService implements IAuthService {
             localStorage.setItem(this._tokenStorageItem, result.token);
             localStorage.setItem(this._accessRules, JSON.stringify(result.accessRules));
             localStorage.setItem(this._modulesStorageItem, JSON.stringify(modules));
-            this.SetTokenCookie(result.token);
+            // this.SetTokenCookie(result.token);
             await this.GetCurrentUser();
             return true;
         } catch (e) {
