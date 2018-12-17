@@ -8,4 +8,6 @@ export interface IAuthService {
     GetCurrentUser(): Promise<AuthUser>;
     GetUsersForMyDivision(): Promise<AuthUser[]>;
     GetUsersForSubdivisionList(subdivisionIds: number[]): Promise<AuthUser[]>;
+    SetTokenCookie(token: string);
+    DeleteTokenCookie();
 }

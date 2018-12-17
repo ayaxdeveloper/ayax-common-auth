@@ -228,7 +228,7 @@ export class AuthService implements IAuthService {
         return this.GetUsersForSubdivisionList(this.currentUser.subdivisionIds);
     }
 
-    private SetTokenCookie(token: string) {
+    public SetTokenCookie(token: string) {
         let expires = "";
         const date = new Date();
         date.setTime(date.getTime() + this._tokenExpiresInHours * 60 * 1000);
@@ -236,7 +236,7 @@ export class AuthService implements IAuthService {
         document.cookie = `${this._cookieTokenName}=${token}${expires};path=/;domain=${this._cookieDomain};`;
     }
 
-    private DeleteTokenCookie() {
-        document.cookie = `${this._cookieTokenName}=; Max-Age=-99999999;`;
+    public DeleteTokenCookie() {
+        document.cookie = `${this._cookieTokenName}=; Max-Age=-99999999;path=/;domain=${this._cookieDomain};`;
     }
 }
