@@ -1,7 +1,7 @@
 import { IOperationService } from "ayax-common-operation";
 
 export interface IAuthServiceOptions {
-    identityOperation: IOperationService; 
+    identityOperation: IOperationService;
     readerOperation: IOperationService;
     token: string;
     cacheExpiresAfter?: number;

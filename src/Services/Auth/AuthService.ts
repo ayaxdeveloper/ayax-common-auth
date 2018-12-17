@@ -27,7 +27,11 @@ export class AuthService implements IAuthService {
         this._cacheExpiresAfter = options.cacheExpiresAfter ? options.cacheExpiresAfter : 15;
         this._authenticateUrl = options.authenticateUrl ? options.authenticateUrl : "/authentication/Login";
         this._token = options.token;
-        this._cookieDomain = location.href.startsWith("http://localhost") ? "localhost" : options.cookieDomain ? options.cookieDomain : ".ayax.ru";
+        this._cookieDomain = location.href.startsWith("http://localhost")
+            ? "localhost"
+            : options.cookieDomain
+            ? options.cookieDomain
+            : window.location.hostname;
         this._tokenExpiresInHours = options.tokenExpiresInHours ? options.tokenExpiresInHours : 72;
         this._cookieTokenName = options.cookieTokenName ? options.cookieTokenName : "token";
         if (options.modules) {
@@ -117,13 +121,15 @@ export class AuthService implements IAuthService {
         }
 
         try {
-            const operation = await this._identityOperation.post<AuthResponse>(this._authenticateUrl, request).then((x) => x.ensureSuccess());
+            const operation = await this._identityOperation
+                .post<AuthResponse>(this._authenticateUrl, request)
+                .then(x => x.ensureSuccess());
             const result = operation;
             this._token = result.token;
             localStorage.setItem(this._tokenStorageItem, result.token);
             localStorage.setItem(this._accessRules, JSON.stringify(result.accessRules));
             localStorage.setItem(this._modulesStorageItem, JSON.stringify(modules));
-            // this.SetTokenCookie(result.token);
+            this.SetTokenCookie(result.token);
             await this.GetCurrentUser();
             return true;
         } catch (e) {
@@ -149,7 +155,9 @@ export class AuthService implements IAuthService {
         }
 
         try {
-            const user = await this._identityOperation.post<AuthUser>(`/authentication/GetAuthenticatedUser`, request).then((x) => x.ensureSuccess());
+            const user = await this._identityOperation
+                .post<AuthUser>(`/authentication/GetAuthenticatedUser`, request)
+                .then(x => x.ensureSuccess());
             this.currentUser = user;
             if (!this.accessRules && user.accessRulesNames.length > 0) {
                 this.accessRules = user.accessRulesNames;
@@ -184,9 +192,15 @@ export class AuthService implements IAuthService {
         const fetchResponse = () =>
             this._readerOperation
                 .search<AuthUser[]>("/user/search", request)
-                .then((x) => x.ensureSuccess())
-                .then((x) => x.data);
-        return CacheHelper.TryFromCache<AuthUser>(fetchResponse, this._cacheExpiresAfter, "post", "/user/search", request);
+                .then(x => x.ensureSuccess())
+                .then(x => x.data);
+        return CacheHelper.TryFromCache<AuthUser>(
+            fetchResponse,
+            this._cacheExpiresAfter,
+            "post",
+            "/user/search",
+            request,
+        );
     }
 
     async GetSubdivisions(isMain?: boolean): Promise<AuthSubdivision[]> {
@@ -199,9 +213,15 @@ export class AuthService implements IAuthService {
         const fetchResponse = () =>
             this._readerOperation
                 .search<AuthSubdivision[]>("/subdivision/search", request)
-                .then((x) => x.ensureSuccess())
-                .then((x) => x.data);
-        return CacheHelper.TryFromCache<AuthSubdivision>(fetchResponse, this._cacheExpiresAfter, "post", "/subdivision/search", request);
+                .then(x => x.ensureSuccess())
+                .then(x => x.data);
+        return CacheHelper.TryFromCache<AuthSubdivision>(
+            fetchResponse,
+            this._cacheExpiresAfter,
+            "post",
+            "/subdivision/search",
+            request,
+        );
     }
 
     async GetUsersForMyDivision(): Promise<AuthUser[]> {
