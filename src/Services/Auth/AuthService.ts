@@ -149,6 +149,7 @@ export class AuthService implements IAuthService {
             this.SetTokenCookie(this._token);
         } catch (e) {
             console.error(e);
+            this.DeleteTokenCookie();
             return false;
         }
         return true;
