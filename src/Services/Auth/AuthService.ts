@@ -140,6 +140,18 @@ export class AuthService implements IAuthService {
         }
     }
 
+    public async CheckAuthentication(): Promise<boolean> {
+        const request = { token: this._token, modules: this.modules };
+        try {
+            await this._identityOperation.post<AuthUser>(`/authentication/GetAuthenticatedUser`, request);
+            this.SetTokenCookie(this._token);
+        } catch (e) {
+            console.error(e);
+            return false;
+        }
+        return true;
+    }
+
     private async GetAuthenticatedUser(modules?: string[]): Promise<AuthUser> {
         if (!this._token || this._token === "") {
             console.error(`Неверный токен token=${this._token}`);
