@@ -143,6 +143,7 @@ export class AuthService implements IAuthService {
     public async CheckAuthentication(): Promise<boolean> {
         const request = { token: this._token, modules: this.modules };
         try {
+            this.DeleteTokenCookie();
             this.currentUser = await this._identityOperation
                 .post<AuthUser>(`/authentication/GetAuthenticatedUser`, request)
                 .then(x => x.ensureSuccess());
