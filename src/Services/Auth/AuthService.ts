@@ -42,7 +42,7 @@ export class AuthService implements IAuthService {
     get accessRules(): string[] {
         const fromStorage = localStorage.getItem(this._accessRules);
         if (fromStorage) {
-            return <string[]>JSON.parse(fromStorage);
+            return <string[]> JSON.parse(fromStorage);
         } else {
             return null;
         }
@@ -55,7 +55,7 @@ export class AuthService implements IAuthService {
     get modules(): string[] {
         const fromStorage = localStorage.getItem(this._modulesStorageItem);
         if (fromStorage) {
-            return <string[]>JSON.parse(fromStorage);
+            return <string[]> JSON.parse(fromStorage);
         } else {
             return null;
         }
@@ -68,7 +68,7 @@ export class AuthService implements IAuthService {
     get currentUser(): AuthUser {
         if (!this._currentUser) {
             const currentUserFromStorage = localStorage.getItem(this._currentUserStorageItem);
-            this._currentUser = <AuthUser>JSON.parse(currentUserFromStorage);
+            this._currentUser = <AuthUser> JSON.parse(currentUserFromStorage);
         }
         return this._currentUser;
     }
@@ -186,6 +186,17 @@ export class AuthService implements IAuthService {
         }
     }
 
+    async GetUserById(id: number): Promise<AuthUser> {
+        const operation = await this._readerOperation.get<AuthUser>(`/user/getuserbyid/${id}`);
+        if (operation.status === 0) {
+            const user = operation.result;
+            return user;
+        } else {
+            console.error(operation.message);
+            throw Error(`Ошибка загрузки ${operation.message}`);
+        }
+    }
+
     async GetUserByUid(uid: string): Promise<AuthUser> {
         const operation = await this._readerOperation.get<AuthUser>(`/user/getuserbyuid/${uid}`);
         if (operation.status === 0) {
@@ -203,7 +214,7 @@ export class AuthService implements IAuthService {
 
     async GetUsersForSubdivisionList(subdivisionsIds?: number[]): Promise<AuthUser[]> {
         const request = subdivisionsIds
-            ? { page: 1, perPage: 10000, subdivisionsIds: subdivisionsIds, showChildren: true }
+            ? { page: 1, perPage: 10000, subdivisionsIds, showChildren: true }
             : { page: 1, perpage: 10000 };
         const fetchResponse = () =>
             this._readerOperation
