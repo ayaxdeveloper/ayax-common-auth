@@ -140,13 +140,18 @@ export class AuthService implements IAuthService {
         }
     }
 
-    public async CheckAuthentication(): Promise<boolean> {
+    public async CheckAuthentication(login?: string): Promise<boolean> {
         const request = { token: this._token, modules: this.modules };
         try {
             this.DeleteTokenCookie();
             this.currentUser = await this._identityOperation
                 .post<AuthUser>(`/authentication/GetAuthenticatedUser`, request)
                 .then(x => x.ensureSuccess());
+            if (login && this.currentUser.login.toLocaleLowerCase() !== login.toLocaleLowerCase()) {
+                console.error("Токен не соотвествует пользователю");
+                this.DeleteTokenCookie();
+                return false;
+            }
             this.SetTokenCookie(this._token);
         } catch (e) {
             console.error(e);

@@ -11,5 +11,5 @@ export interface IAuthService {
     GetUsersForSubdivisionList(subdivisionIds: number[]): Promise<AuthUser[]>;
     SetTokenCookie(token: string);
     DeleteTokenCookie();
-    CheckAuthentication(): Promise<boolean>;
+    CheckAuthentication(login?: string): Promise<boolean>;
 }
