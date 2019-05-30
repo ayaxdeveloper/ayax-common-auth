@@ -1,8 +1,11 @@
 import { CacheHelper } from "ayax-common-cache";
 import { IOperationService } from "ayax-common-operation";
+import { Guid } from "ayax-common-types";
+import { AuthGroup, ISearchUserRequest } from "../..";
 import { AuthResponse } from "../../Types/AuthResponse";
 import { AuthSubdivision } from "../../Types/AuthSubdivision";
 import { AuthUser } from "../../Types/AuthUser";
+import { ISearchGroupRequest } from "../../Types/ISearchGroupRequest";
 import { IAuthService } from "./IAuthService";
 import { IAuthServiceOptions } from "./IAuthServiceOptions";
 
@@ -270,5 +273,46 @@ export class AuthService implements IAuthService {
 
     public DeleteTokenCookie() {
         document.cookie = `${this._cookieTokenName}=; Max-Age=-99999999;path=/;domain=${this._cookieDomain};`;
+    }
+
+    public SearchUsers(request?: ISearchUserRequest): Promise<AuthUser[]> {
+        const fetchResponse = () =>
+            this._readerOperation
+                .search<AuthUser[]>("/user/search", request)
+                .then(x => x.ensureSuccess())
+                .then(x => x.data);
+        return CacheHelper.TryFromCache<AuthUser>(
+            fetchResponse,
+            this._cacheExpiresAfter,
+            "post",
+            "/user/search",
+            request,
+        );
+    }
+
+    public GetGroup(guid: Guid): Promise<AuthGroup> {
+        return this._readerOperation
+                .get<AuthGroup>(`/group/getgroupbyuid/${guid}`)
+                .then(x => x.ensureSuccess());
+    }
+    public GetGroupUsers(): Promise<{ [guid: string]: AuthUser[] }> {
+        return this._readerOperation
+                .get<{ [guid: string]: AuthUser[] }>(`/group/getgroupusers`)
+                .then(x => x.ensureSuccess());
+    }
+    
+    public SearchGroups(request?: ISearchGroupRequest): Promise<AuthGroup[]> {
+        const fetchResponse = () =>
+            this._readerOperation
+                .search<AuthGroup[]>("/group/search", request)
+                .then(x => x.ensureSuccess())
+                .then(x => x.data);
+        return CacheHelper.TryFromCache<AuthGroup>(
+            fetchResponse,
+            this._cacheExpiresAfter,
+            "post",
+            "/group/search",
+            request,
+        );
     }
 }

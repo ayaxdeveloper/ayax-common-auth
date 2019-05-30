@@ -13,3 +13,5 @@ export * from "./Decorators/WritableAccess/WritableAccessDecorator";
 export * from "./Types/AccessProxy/AccessProxyBase";
 export * from "./Types/AccessProxy/IAccessProxy";
 export * from "./Types/AccessProxy/IAccessProxyCollection";
+export * from "./Types/ISearchUserRequest";
+export * from "./Types/AuthGroup";
