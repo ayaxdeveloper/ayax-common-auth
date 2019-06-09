@@ -195,6 +195,9 @@ export class AuthService implements IAuthService {
     }
 
     async GetUserById(id: number): Promise<AuthUser> {
+        if (!id) {
+            return null;
+        }
         const operation = await this._readerOperation.get<AuthUser>(`/user/getuserbyid/${id}`);
         if (operation.status === 0) {
             const user = operation.result;
