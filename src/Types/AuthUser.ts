@@ -15,6 +15,7 @@ export class AuthUser implements IEntity {
     birthDate: Date;
     accessRulesNames: string[] = [];
     subdivisionIds: number[] = [];
+    groupGuids: string[] = [];
     constructor(init?: Partial<AuthUser>) {
         if (init) {
             Object.assign(this, init);
