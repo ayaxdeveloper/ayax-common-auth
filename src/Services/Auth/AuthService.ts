@@ -198,7 +198,7 @@ export class AuthService implements IAuthService {
         const operation = await this._readerOperation.get<AuthUser>(`/user/getuserbyid/${id}`);
         if (operation.status === 0) {
             const user = operation.result;
-            return user;
+            return await this.GetUserByUid(`${user.uid}`);
         } else {
             console.error(operation.message);
             throw Error(`Ошибка загрузки ${operation.message}`);
