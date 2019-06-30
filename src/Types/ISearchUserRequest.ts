@@ -10,4 +10,5 @@ export interface ISearchUserRequest {
   notInGroupGuids?: Guid[];
   page?: number;
   perPage?: number;
+  IncludeUIDs?: Guid[]; 
 }
