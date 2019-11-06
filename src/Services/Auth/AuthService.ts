@@ -33,8 +33,8 @@ export class AuthService implements IAuthService {
         this._cookieDomain = location.href.startsWith("http://localhost")
             ? "localhost"
             : options.cookieDomain
-            ? options.cookieDomain
-            : window.location.hostname;
+                ? options.cookieDomain
+                : window.location.hostname.split(".").slice(-2).join(".");
         this._tokenExpiresInHours = options.tokenExpiresInHours ? options.tokenExpiresInHours : 72;
         this._cookieTokenName = options.cookieTokenName ? options.cookieTokenName : "token";
         if (options.modules) {
@@ -45,7 +45,7 @@ export class AuthService implements IAuthService {
     get accessRules(): string[] {
         const fromStorage = localStorage.getItem(this._accessRules);
         if (fromStorage) {
-            return <string[]> JSON.parse(fromStorage);
+            return <string[]>JSON.parse(fromStorage);
         } else {
             return null;
         }
@@ -58,7 +58,7 @@ export class AuthService implements IAuthService {
     get modules(): string[] {
         const fromStorage = localStorage.getItem(this._modulesStorageItem);
         if (fromStorage) {
-            return <string[]> JSON.parse(fromStorage);
+            return <string[]>JSON.parse(fromStorage);
         } else {
             return null;
         }
@@ -71,7 +71,7 @@ export class AuthService implements IAuthService {
     get currentUser(): AuthUser {
         if (!this._currentUser) {
             const currentUserFromStorage = localStorage.getItem(this._currentUserStorageItem);
-            this._currentUser = <AuthUser> JSON.parse(currentUserFromStorage);
+            this._currentUser = <AuthUser>JSON.parse(currentUserFromStorage);
         }
         return this._currentUser;
     }
@@ -295,15 +295,15 @@ export class AuthService implements IAuthService {
 
     public GetGroup(guid: Guid): Promise<AuthGroup> {
         return this._readerOperation
-                .get<AuthGroup>(`/group/getgroupbyuid/${guid}`)
-                .then(x => x.ensureSuccess());
+            .get<AuthGroup>(`/group/getgroupbyuid/${guid}`)
+            .then(x => x.ensureSuccess());
     }
     public GetGroupUsers(): Promise<{ [guid: string]: AuthUser[] }> {
         return this._readerOperation
-                .get<{ [guid: string]: AuthUser[] }>(`/group/getgroupusers`)
-                .then(x => x.ensureSuccess());
+            .get<{ [guid: string]: AuthUser[] }>(`/group/getgroupusers`)
+            .then(x => x.ensureSuccess());
     }
-    
+
     public SearchGroups(request?: ISearchGroupRequest): Promise<AuthGroup[]> {
         const fetchResponse = () =>
             this._readerOperation
