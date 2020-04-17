@@ -269,7 +269,7 @@ export class AuthService implements IAuthService {
     public SetTokenCookie(token: string) {
         let expires = "";
         const date = new Date();
-        date.setTime(date.getTime() + this._tokenExpiresInHours * 60 * 1000);
+        date.setTime(date.getTime() + this._tokenExpiresInHours * 60 * 60 * 1000);
         expires = "; expires=" + date.toUTCString();
         document.cookie = `${this._cookieTokenName}=${token}${expires};path=/;domain=${this._cookieDomain};`;
     }
